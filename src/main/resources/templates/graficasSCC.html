@@ -1,0 +1,138 @@
+<!doctype html>
+    <html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+        <!--Hojas de estilo personalizadas-->
+        <link rel="stylesheet" type="text/css" href="static/css/normalize.css" th:href="@{/css/normalize.css}" >
+        <link rel="stylesheet" type="text/css" href="static/css/style.css" th:href="@{/css/style.css}">
+
+        <!--Fuentes-->
+        <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Lato:wght@400;700&display=swap" rel="stylesheet"> 
+
+        <!--Titulo de la página-->
+        <link rel="shortcut icon" href="img/iconos/pinUam24.png"> 
+        <title>Archinaut</title>
+    </head>
+    <body>
+
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+      	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+      	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+      	
+      <script>
+      
+      $(document).ready(function(){
+			
+    	  var headers;
+    	  
+    	  var lines = [];//Se crea un arreglo que se usara como matriz
+    	  
+    	  google.charts.load('current', {'packages':['corechart']});
+  	      google.charts.setOnLoadCallback(drawChart);
+    	  
+    	  $.ajax({
+  	   		url: 'docs/metricsReport.csv',
+  	    	dataType: 'text',
+  	  		}).done(successFunction);
+    		
+    		function successFunction(allText) {
+    		       
+    			   //Se parte el texto en renglones
+    			   var allRows = allText.split(/\r\n|\n/);
+    		       //Guardamos los encabezados en una variable aparte
+    		       headers = allRows[0].split(',');
+
+    		       for (var i = 1; i < allRows.length; i++) {
+    		           
+    		    	   var rowCells = allRows[i].split(',');
+    		           
+    		    	   //Guarda el arreglo de datos que hay en una linea en el arreglo de arreglos llamado lines por lo tanto lines se vuelve matriz
+    				   lines.push(rowCells);
+    		    	   
+    		       }
+    		       console.log(lines);
+    		       console.log(headers);
+    		}
+    	      
+    	    function drawChart() {
+    	          
+    	    	  for(var i=0; i<lines.length; i++){
+    	    		  
+    	    		 if(lines[i][12]>2 && lines[i][11]>0 && lines[i][6]>0){
+    	    			 $("#graficas").append($("<pre><h2>	"+lines[i][0]+"</h2></pre><div id="+i+"  style=\"width: 100%; height: 500px;\"></div>"));
+       	    		  
+       	    		  	 var data = google.visualization.arrayToDataTable([
+       	    	            ['Year', ""+headers[4]+"", ""+headers[5]+"", ""+headers[6]+""],
+       	    	            ['2013',  0,      0, 	0],
+       	    	            ['2014',  parseInt(lines[i][4]),      parseInt(lines[i][5]),	parseInt(lines[i][6])],
+       	    	            ['2015',  60,       40, 50],
+       	    	          ]);
+
+       	    	          var options = {
+       	    	        	title: "Revisions: "+lines[i][7]+"\n CoChange Partners: "+lines[i][11]+"\n Bug Commits: "+lines[i][12]+"\n Changed lines: "+lines[i][13],
+       	    	            hAxis: {title: 'Analyzes',  titleTextStyle: {color: '#333'}},
+       	    	            vAxis: {minValue: 0}
+       	    	          };
+
+       	    	          var chart = new google.visualization.AreaChart(document.getElementById(""+i+""));
+       	    	          chart.draw(data, options);
+    	    		 }
+    	    	  }
+    	    }
+    		
+
+    	});
+      		
+      
+      </script>
+      
+      <div class="sticky-top site-header">
+          <div class="collapse" id="navbarToggleExternalContent">
+            <div class="bg-dark pt-4 px-4 pb-1">
+              <p>Options</p>
+              <ul class="menu-header">
+                <!--  <li><img src="img/iconos/pinUam16.png" alt=""> <a href="/">Inicio</a></li>-->
+                <li><img src="img/iconos/pinUam16.png" alt=""> <a href="graficasSCC">Watch SCC</a></li>
+                <li><img src="img/iconos/pinUam16.png" alt=""> <a href="graficasDpnds">Watch Depends</a></li>
+              </ul>
+            </div>
+          </div>
+          <nav class="navbar navbar-dark bg-dark">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <h2 class="titulo-principal">SCC Analysis</h2>
+            <img src="img/iconos/pinUam48.png" alt="">
+            
+          </nav>
+        </div>
+
+        <div class="contenedor-graficas" id="graficas">
+          
+            <!-- GRAFICAS -->
+            
+        </div>
+
+        <footer class="site-footer seccion">
+          <div class="container contenedor-footer">
+              <nav class="navegacion-footer">
+                  <a href="/">Home</a>
+                  <a href="graficasSCC">Watch SCC</a>
+                  <a href="graficasDpns">Watch Depends</a>
+              </nav>
+
+              <p class="copyright">Todos los Derechos Reservados UAM-I 2020 &copy;</p>
+          </div>
+        </footer>
+    </body>
+</html>
