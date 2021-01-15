@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import mx.uam.izt.archinautInterface.bussines.InformeService;
-import mx.uam.izt.archinautInterface.model.Data;
+import mx.uam.izt.archinautInterface.model.Datas;
 
 @RestController
 @Slf4j
@@ -30,7 +30,7 @@ public class SccController {
 	@GetMapping(path = "/data/scc", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity <?> retrieveAll() {
 		
-		Iterable <Data> result = informeService.retriveScc();
+		Iterable <Datas> result = informeService.retriveScc();
 		
 		log.info("datos procesados para SCC");
 		

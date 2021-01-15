@@ -1,18 +1,21 @@
 package mx.uam.izt.archinautInterface.bussines;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import mx.uam.izt.archinautInterface.data.InformeRepository;
-import mx.uam.izt.archinautInterface.model.Data;
+import mx.uam.izt.archinautInterface.model.Datas;
 import mx.uam.izt.archinautInterface.model.Informe;
 
 @Service
 @Slf4j
 public class InformeService {
 	
-	@Autowired
 	private InformeRepository informeRepository;
 	
 	/**
@@ -54,20 +57,95 @@ public class InformeService {
 	 * 
 	 * @return Lista de los Informes para Depends
 	 */
-	public Iterable <Data> retriveDpnds(){
+	public Iterable <Datas> retriveDpnds(){
 		log.info("Regresando arreglo con datos");
-		Data dato;
-		Iterable <Data> lista = null;
-		return lista;
+		String report, aux="";
+		Datas dato = new Datas();
+		
+		List <Datas> lista = new ArrayList<>();
+		List <Datas> listaAux = new ArrayList<>();
+		
+		Iterable <Informe> informes = retriveAll();
+		
+		Iterator<Informe> it = informes.iterator();
+		
+		//Se guardan los datos por cada archivo del reporte en una lista
+		while(it.hasNext()) {
+			report = it.next().getData().toString();
+			for(int i=0; i<report.length();i++) {
+				if(report.charAt(i)!= '\n') {
+					aux = aux+report.charAt(i);
+				}else {
+					dato.setIdCommit(it.next().getIdCommit());
+					dato.setInfo(aux);
+					lista.add(dato);
+				}
+			}
+		}
+		
+		for(int i=0; i<lista.size();i++) {
+			
+			String info;
+			
+			info=lista.get(i).getInfo();
+			
+			String[] datos = info.split(",");
+			
+			//Comienza Logica para Depends
+			if(Integer.parseInt(datos[12])>2 && Integer.parseInt(datos[11])>0) {
+				if(!listaAux.contains(lista.get(i))) {
+					listaAux.add(lista.get(i));
+				}
+			}
+		}
+		return listaAux;
 	}
 	
 	/**
 	 * 
 	 * @return Lista de los Informes para Scc
 	 */
-	public Iterable <Data> retriveScc(){
-		Data dato;
-		Iterable <Data> lista = null;
-		return lista;
+	public Iterable <Datas> retriveScc(){
+		log.info("Regresando arreglo con datos");
+		String report, aux="";
+		Datas dato = new Datas();
+		
+		List <Datas> lista = new ArrayList<>();
+		List <Datas> listaAux = new ArrayList<>();
+		
+		Iterable <Informe> informes = retriveAll();
+		
+		Iterator<Informe> it = informes.iterator();
+		
+		//Se guardan los datos por cada archivo del reporte en una lista
+		while(it.hasNext()) {
+			report = it.next().getData().toString();
+			for(int i=0; i<report.length();i++) {
+				if(report.charAt(i)!= '\n') {
+					aux = aux+report.charAt(i);
+				}else {
+					dato.setIdCommit(it.next().getIdCommit());
+					dato.setInfo(aux);
+					lista.add(dato);
+				}
+			}
+		}
+		
+		for(int i=0; i<lista.size();i++) {
+			
+			String info;
+			
+			info=lista.get(i).getInfo();
+			
+			String[] datos = info.split(",");
+			
+			//Comienza Logica para Depends
+			if(Integer.parseInt(datos[12])>2 && Integer.parseInt(datos[11])>0) {
+				if(!listaAux.contains(lista.get(i))) {
+					listaAux.add(lista.get(i));
+				}
+			}
+		}
+		return listaAux;
 	}
 }

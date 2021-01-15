@@ -63,27 +63,16 @@
     		       console.log(lines);
     		       console.log(headers);
     		}
-    		
-    		function sortBy() {
-  	          
-  	    	  for(var i=0; i<10; i++){
-  	    		  
-  	    		  
-  	    	  }
-  	      	}
     	      
     	  	function drawChart() {
     	          
     	    	  for(var i=0; i<lines.length; i++){
-    	    		  
-    	    		  if(lines[i][12]>2 && lines[i][11]>0){
     	    			  $("#graficas").append($("<pre><h2>	"+lines[i][0]+"</h2></pre><div id="+i+"  style=\"width: 100%; height: 500px;\"></div>"));
         	    		  
         	    		  var data = google.visualization.arrayToDataTable([
         	    	            ['Year', ""+headers[8]+"", ""+headers[9]+"", ""+headers[10]+""],
         	    	            ['2013',  0,      0, 	0],
         	    	            ['2014',  parseInt(lines[i][8]),      parseInt(lines[i][9]),	parseInt(lines[i][10])],
-        	    	            ['2015',  60,       40, 50],
         	    	          ]);
 
         	    	          var options = {
@@ -94,7 +83,6 @@
 
         	    	          var chart = new google.visualization.AreaChart(document.getElementById(""+i+""));
         	    	          chart.draw(data, options);  
-    	    		  }
     	    	  }
     	  	}
     		

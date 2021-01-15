@@ -1,7 +1,5 @@
 package mx.uam.izt.archinautInterface.services;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,7 +31,7 @@ public class InformeController {
 			notes = "Permite crear un nuevo Informe"
 			)
 	@PostMapping(path = "/informes", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity <?> create(@RequestBody @Valid Informe nuevoInforme) {
+	public ResponseEntity <?> create(@RequestBody Informe nuevoInforme) {
 		
 		log.info("Recibí llamada a create con "+nuevoInforme);
 		
