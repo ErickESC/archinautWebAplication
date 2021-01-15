@@ -1,0 +1,406 @@
+/*Variables CSS*/
+
+:root {
+    --colorPrincipal: #e8514e;
+    --colorSecundario:#343a40;
+    --fuentePrincipal: 'Lato', sans-serif;
+    --fuenteSecundaria: 'Do Hyeon', sans-serif;
+  }
+
+html {
+    box-sizing: border-box;
+    font-size: 62.5%;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body{
+    font-size: 1.6rem;
+    font-family: 'Lato', sans-serif;
+}
+
+/*Globales*/
+
+h1,
+h2,
+h3,
+h4{
+    font-family: 'Do Hyeon', sans-serif;
+}
+
+h1{
+    font-size: 3.8rem;
+}
+
+h2{
+    font-size: 3.4rem;
+}
+
+h3{
+    font-size: 3rem;
+}
+
+h4{
+    font-size: 2.6rem;
+}
+
+img{
+    max-width: 100%;
+}
+
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+/*Utilidades*/
+
+.contenedor{
+    max-width: 120rem; /* = 1200px*/
+    margin-left: auto;
+    margin-right: auto; /*casi siempre se ocupa para centrar elementos*/
+    width: 95%;
+}
+
+.seccion{
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.fw-300{
+    font-weight: 300;
+}
+
+.centrar-texto{
+    text-align: center;
+}
+.d-block{
+    display: block!important;
+}
+
+.contenido-centrado{
+    max-width: 800px;
+}
+
+.aviso{
+    font-size: 1.3rem;
+}
+
+.justificar{
+    text-align: justify;
+}
+
+/*Botones*/
+
+.boton{
+    color: #ffffff;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 1.8rem;
+    padding: 1rem 3rem;/*espacio hacia adentro del contenido*/
+    margin-top: 3rem; 
+    display: inline-block;
+    text-align: center;
+    border: none;
+    display: block;
+    flex: 0 0 100%;
+    border-radius: 1rem;
+}
+@media (min-width: 768px) {
+    .boton{
+        display:  inline-block;
+        flex: 0 0 auto;
+    }
+    
+}
+
+.boton:hover{
+    cursor: pointer ;
+}
+.boton-rojo{
+    background-color:  var(--colorPrincipal);
+}
+
+.boton-verde{
+    background-color:  green;
+}
+
+
+/*Header*/
+
+.site-header{
+    font-size: 1.8rem;
+    color: #ffffff;
+}
+
+.menu-header li{
+    list-style: none;
+    margin-top: 0.5rem;
+}
+
+.menu-header li:last-of-type{
+    margin-bottom: 0rem;
+}
+
+.menu-header li a{
+    color: #ffffff;
+    text-decoration: none;
+    transition: all 0.4s ease-in-out;
+}
+
+.menu-header li a:hover{
+    color: var(--colorPrincipal);
+}
+
+.titulo-principal{
+    color: white;
+    margin: 0;
+    font-size: 3.2rem;
+}
+
+/*contenedor presentacion*/
+
+.contenedor-presentacion{
+    background-image: url(../img/fondos/UAM_IZTAPALAPA.jpg);
+    height: 87vh;
+    background-position: center center;
+    background-size: cover;
+}
+
+.contenedor-graficas{
+
+    background-position: center center;
+    background-size: cover;
+}
+
+.fondo-transparente{
+    background-color: rgba(0, 0, 0, 0.9);
+    height: 87vh;
+}
+
+.presentacion{
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 87vh;
+    
+}
+
+.presentacion h2{
+    font-size: 3rem;
+}
+
+@media (min-width: 480px) {
+    .presentacion h2{
+        font-size: 4rem;
+    }     
+}
+
+@media (min-width: 768px) {
+    .presentacion h2{
+        font-size: 5rem;
+    }
+    
+}
+
+.presentacion p{
+    font-size: 1.6rem;
+    line-height: 2;
+}
+
+@media (min-width: 480px) {
+    .presentacion p{
+        font-size: 2.3rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .presentacion p{
+        font-size: 3rem;
+    }
+}
+
+.presentacion a{
+    text-decoration: none;
+    transition: all 0.4s ease-in-out;
+    display: block;
+}
+
+.presentacion a:hover{
+    color: var(--colorPrincipal);
+    background-color: var(--colorSecundario);
+}
+/*Contenedor principal*/
+
+.contenedor-principal{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+/*Cartas*/
+
+.estilo-carta{
+    margin: 1rem auto;
+}
+
+.card-title{
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+@media (min-width: 480px) {
+    .estilo-carta{
+        flex-basis: calc(50% - 1rem);
+    }    
+}
+
+@media (min-width: 768px) {
+    .estilo-carta{
+        flex-basis: calc(33.3% - 1rem);
+    }    
+}
+
+/*Footer*/
+
+.site-footer{
+    background-color: var(--colorSecundario);
+    margin: 0;
+}
+
+.contenedor-footer{
+    padding: 3rem 0rem;
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .contenedor-footer{
+        display: flex;
+        justify-content: space-between;
+    }
+}
+
+.site-footer nav{
+    display: none; /*esta funcion oculta el elemento*/
+}
+
+@media (min-width: 768px) {
+    .site-footer nav{
+        display: block; /*con esto vuelves a haver que se vea el elemento*/
+    }
+}
+
+.copyright{
+    margin: 0;
+    color: #ffffff;
+}
+
+/*Navegacion footer*/
+
+.navegacion-footer a{
+    color: white; 
+    text-decoration: none;
+    font-size: 2.2rem;
+    display: block;
+    transition: all 0.4s ease-in-out;
+}
+
+@media (min-width: 768px) {
+    .navegacion-footer a{
+        display: inline-block;
+        margin-right: 2rem;
+        font-size: 1.8rem; /* = 18px*/
+    }
+    .navegacion-footer a:last-of-type{
+        margin-right: 0;
+    }
+    
+}
+
+.navegacion-footer a:hover{
+    color: var(--colorPrincipal);
+}
+
+/*Formulario de registro*/
+
+legend{
+    font-size: 2rem;
+    color: #333333;
+}
+
+label{
+    font-weight: 700;
+    
+    display: block;
+}
+
+
+input:not([type="submit"]), /*las comas , separan los selectores para que se apliquen a diferentes en este caso a input, a textarea y a select*/
+textarea,
+select{ 
+    padding: 1rem;
+    display: block;
+    width: 100%;
+    background-color: #e1e1e1;
+    margin-bottom: 2rem;
+    border: none;
+    border-radius: 1rem;
+}
+
+input[type="radio"]{
+    width: auto;
+    margin: 0;
+}
+
+select{
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+textarea{
+    height: 20rem;
+}
+
+.forma-contacto{
+    max-width: 30rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.registro fieldset{
+    border: 1px solid black;
+    margin-bottom: 2rem;
+}
+
+.registro fieldset:last-of-type{
+    margin-bottom: 0rem;
+}
+
+/*Reclutamiento*/
+
+.formularioReclutamiento fieldset{
+    border: 1px solid black;
+    margin-bottom: 2rem;
+}
+
+.formularioReclutamiento fieldset:last-of-type{
+    margin-bottom: 0rem;
+}
+
+/*Recursos externos*/
+/*Fuentes*/
+/*
+    font-family: 'Do Hyeon', sans-serif;
+    font-family: 'Lato', sans-serif;
+*/
+
+/*Colores*/
+
+/*
+    color principal: #e8514e
+    color secundario: #343a40
+*/

@@ -1,5 +1,5 @@
 package mx.uam.izt.archinautInterface.model;
 
-public class data {
+public class Data {
 
 }
