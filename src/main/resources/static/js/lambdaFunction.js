@@ -11,8 +11,8 @@ export enum ExtraOptions {
 }
 
 export enum Credentials {
-  AWS_ACCESS_KEY_ID = 'AKIAJ4IM3DMMT6VPB3CA',
-  AWS_SECRET_ACCESS_KEY = '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',
+  AWS_ACCESS_KEY_ID = '--------',
+  AWS_SECRET_ACCESS_KEY = '-------',
   AWS_SESSION_TOKEN = 'AWS_SESSION_TOKEN',
 }
 
