@@ -6,9 +6,10 @@ import java.util.List;
 import mx.uam.izt.archinautInterface.model.Informe;
 
 public class InformeRepository {
+	
 	private static List <Informe> repository = new ArrayList<>();
 	
-	public static Informe save(Informe nuevoInforme) {
+	public Informe save(Informe nuevoInforme) {
 		repository.add(nuevoInforme);
 		return nuevoInforme;
 	}
