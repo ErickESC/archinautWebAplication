@@ -57,9 +57,7 @@
        		// Recorre los objetos
        		var i;
        		
-       		console.log(lista.length);
-       		
-       		//Siguientes 3 rengloses son para sacar los encabezados
+       		//Loas Siguientes 3 lineas son para sacar los encabezados
 	     	var allText = lista[0].data;	
 	 		//Se parte el texto en renglones
 	 		var allRows = allText.split(/\r\n|\n/);
@@ -75,12 +73,10 @@
 	
  			   //Se parte el texto en renglones
  			   allRows = allText.split(/\r\n|\n/);
- 		       //Guardamos los encabezados en una variable aparte
- 		       headers = allRows[0].split(',');
 
- 		       for (var i = 1; i < allRows.length; i++) {
+ 		       for (var k = 1; k < allRows.length; k++) {
  		           
- 		    	   var rowCells = allRows[i].split(',');
+ 		    	   var rowCells = allRows[k].split(',');
  		           
  		    	   //Guarda el arreglo de datos que hay en una linea en el arreglo de arreglos llamado informe por lo tanto lines se vuelve matriz
  				   informe.push(rowCells); 
@@ -95,15 +91,15 @@
      	 
     	  	function drawChart() {
 				
-    	  		for(var i=0; i<3; i++){
+    	  		for(var i=30; i<40; i++){
    	    			 $("#graficas").append($("<pre><h2>	"+crono[0][i][0]+"</h2></pre><div id="+i+"  style=\"width: 100%; height: 500px;\"></div>"));
       	    		  		
    	    			 	var report = [
-      	    	            ['Year', ""+headers[8]+"", ""+headers[9]+"", ""+headers[10]+""],
+      	    	            ['Commit Num.', ""+headers[8]+"", ""+headers[9]+"", ""+headers[10]+""],
       	    	            
       	    	          ];
    	    			 	
-   	    			 	console.log(crono.length);
+   	    			 	console.log("numero de informes: "+crono.length);
    	    			 	for(var j=0; j<crono.length;j++){
    	    			 		var commit = [''+(j+1)+'',  parseInt(crono[j][i][8]),      parseInt(crono[j][i][9]),	parseInt(crono[j][i][10])];
    	    			 		report.push(commit);
@@ -113,8 +109,11 @@
       	    		  	 var data = google.visualization.arrayToDataTable(report);
 
       	    	          var options = {
-      	    	        	title: "Last Revisions: "+crono[crono.length-1][i][7]+"\n Last CoChange Partners: "+crono[crono.length-1][i][11]+"\n Last Bug Commits: "+crono[crono.length-1][i][12]+"\n Last Changed lines: "+crono[crono.length-1][i][13],
-      	    	            hAxis: {title: 'Analyzes',  titleTextStyle: {color: '#333'}},
+      	    	        	title: "Revisions: begin "+crono[0][i][7]+" -> last "+crono[crono.length-1][i][7]
+      	    	        		+"\n CoChange Partners: begin "+crono[0][i][11]+" -> last "+crono[crono.length-1][i][11]
+      	    	        		+"\n Bug Commits: begin"+crono[0][i][12]+" -> last "+crono[crono.length-1][i][12]
+      	    	        		+"\n Changed lines: begin "+crono[0][i][13]+" -> last "+crono[crono.length-1][i][13],
+      	    	            hAxis: {title: 'Commits',  titleTextStyle: {color: '#333'}},
       	    	            vAxis: {minValue: 0}
       	    	          };
 
