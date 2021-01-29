@@ -38,6 +38,19 @@
       <artifactId>spring-boot-configuration-processor</artifactId>
       <optional>true</optional>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-core -->
+	<dependency>
+    	<groupId>com.amazonaws</groupId>
+    	<artifactId>aws-java-sdk-core</artifactId>
+    	<version>1.11.944</version>
+	</dependency>
+    <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-dynamodb -->
+	<dependency>
+    	<groupId>com.amazonaws</groupId>
+    	<artifactId>aws-java-sdk-dynamodb</artifactId>
+    	<version>1.11.944</version>
+	</dependency>
+    <!-- Getters y setters -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
