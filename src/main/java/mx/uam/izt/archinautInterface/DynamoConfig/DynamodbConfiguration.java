@@ -14,7 +14,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 @Configuration
 public class DynamodbConfiguration {
 
-	private static final DynamoDBMapperConfig.TableNameResolver TABLE_NAME_RESOLVER = (className,config) -> "stocks";
+	private static final DynamoDBMapperConfig.TableNameResolver TABLE_NAME_RESOLVER = (className,config) -> "ArchAnalysis";
 		ClientConfiguration getClientConfoguration() {
 		
 		ClientConfiguration cfg = new ClientConfiguration();
