@@ -71,7 +71,7 @@ public class InformeService {
 		
 		//Se guardan los datos por cada archivo del reporte en una lista
 		while(it.hasNext()) {
-			report = it.next().getData().toString();
+			report = it.next().getAnalysis().toString();
 			for(int i=0; i<report.length();i++) {
 				if(report.charAt(i)!= '\n') {
 					aux = aux+report.charAt(i);
@@ -119,7 +119,7 @@ public class InformeService {
 		
 		//Se guardan los datos por cada archivo del reporte en una lista
 		while(it.hasNext()) {
-			report = it.next().getData().toString();
+			report = it.next().getAnalysis().toString();
 			for(int i=0; i<report.length();i++) {
 				if(report.charAt(i)!= '\n') {
 					aux = aux+report.charAt(i);
@@ -157,7 +157,7 @@ public class InformeService {
 		informe1.setId("123456789");
 		informe1.setIdCommit("123");
 		informe1.setFecha("2021/01/06 10:10:45 PST");
-		informe1.setData("Filename,DES_Size,DES_Complexity,DES_Design Smells,SCC_LOC,SCC_CLOC,SCC_COMPLEXITY,ARCH_Revisions,ARCH_Dependent Partners,ARCH_Depends on Partners,ARCH_Total Dependencies,ARCH_CoChange Partners,ARCH_Bug Commits,ARCH_Churn,DV8_LOC,DV8_TargetChangeCount,DV8_TargetChurn,DV8_ChangeCount,DV8_ChangeChurn,DV8_TotalIssues,DV8_Clique,DV8_Crossing,DV8_IsCenter,DV8_ModularityViolation,DV8_PackageCycle,DV8_UnhealthyInheritance,DV8_UnstableInterface,DV8_isUnstableInterface,DV8_PresentInIssues,SQ_Issues,SQ_CodeSmells,SQ_Bugs,SQ_Vulnerabilities,SQ_SecuritySpots,S101_Fat,S101_ClassTangles,S101_PkgTangles\n"
+		informe1.setAnalysis("Filename,DES_Size,DES_Complexity,DES_Design Smells,SCC_LOC,SCC_CLOC,SCC_COMPLEXITY,ARCH_Revisions,ARCH_Dependent Partners,ARCH_Depends on Partners,ARCH_Total Dependencies,ARCH_CoChange Partners,ARCH_Bug Commits,ARCH_Churn,DV8_LOC,DV8_TargetChangeCount,DV8_TargetChurn,DV8_ChangeCount,DV8_ChangeChurn,DV8_TotalIssues,DV8_Clique,DV8_Crossing,DV8_IsCenter,DV8_ModularityViolation,DV8_PackageCycle,DV8_UnhealthyInheritance,DV8_UnstableInterface,DV8_isUnstableInterface,DV8_PresentInIssues,SQ_Issues,SQ_CodeSmells,SQ_Bugs,SQ_Vulnerabilities,SQ_SecuritySpots,S101_Fat,S101_ClassTangles,S101_PkgTangles\n"
 				+ "babel.src.main.java.org.apache.calcite.sql.babel.Babel_java,5,0,2,0,0,0,1,0,0,0,0,0,26,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
 				+ "babel.src.main.java.org.apache.calcite.sql.babel.package-info_java,0,0,0,0,0,0,1,0,0,0,0,0,26,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
 				+ "cassandra.src.main.java.org.apache.calcite.adapter.cassandra.CassandraEnumerator_java,78,15,1,0,0,0,2,1,8,9,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
@@ -1719,7 +1719,7 @@ public class InformeService {
 		informe2.setId("123456789");
 		informe2.setIdCommit("456");
 		informe2.setFecha("2021/01/06 20:10:45 PST");
-		informe2.setData("Filename,DES_Size,DES_Complexity,DES_Design Smells,SCC_LOC,SCC_CLOC,SCC_COMPLEXITY,ARCH_Revisions,ARCH_Dependent Partners,ARCH_Depends on Partners,ARCH_Total Dependencies,ARCH_CoChange Partners,ARCH_Bug Commits,ARCH_Churn,DV8_LOC,DV8_TargetChangeCount,DV8_TargetChurn,DV8_ChangeCount,DV8_ChangeChurn,DV8_TotalIssues,DV8_Clique,DV8_Crossing,DV8_IsCenter,DV8_ModularityViolation,DV8_PackageCycle,DV8_UnhealthyInheritance,DV8_UnstableInterface,DV8_isUnstableInterface,DV8_PresentInIssues,SQ_Issues,SQ_CodeSmells,SQ_Bugs,SQ_Vulnerabilities,SQ_SecuritySpots,S101_Fat,S101_ClassTangles,S101_PkgTangles\n"
+		informe2.setAnalysis("Filename,DES_Size,DES_Complexity,DES_Design Smells,SCC_LOC,SCC_CLOC,SCC_COMPLEXITY,ARCH_Revisions,ARCH_Dependent Partners,ARCH_Depends on Partners,ARCH_Total Dependencies,ARCH_CoChange Partners,ARCH_Bug Commits,ARCH_Churn,DV8_LOC,DV8_TargetChangeCount,DV8_TargetChurn,DV8_ChangeCount,DV8_ChangeChurn,DV8_TotalIssues,DV8_Clique,DV8_Crossing,DV8_IsCenter,DV8_ModularityViolation,DV8_PackageCycle,DV8_UnhealthyInheritance,DV8_UnstableInterface,DV8_isUnstableInterface,DV8_PresentInIssues,SQ_Issues,SQ_CodeSmells,SQ_Bugs,SQ_Vulnerabilities,SQ_SecuritySpots,S101_Fat,S101_ClassTangles,S101_PkgTangles\n"
 				+ "babel.src.main.java.org.apache.calcite.sql.babel.Babel_java,5,0,2,0,0,0,1,0,0,0,0,0,26,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
 				+ "babel.src.main.java.org.apache.calcite.sql.babel.package-info_java,0,0,0,0,0,0,1,0,0,0,0,0,26,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
 				+ "cassandra.src.main.java.org.apache.calcite.adapter.cassandra.CassandraEnumerator_java,78,15,1,0,0,0,2,1,8,9,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
@@ -3292,7 +3292,7 @@ public class InformeService {
 		informe3.setId("123456789");
 		informe3.setIdCommit("789");
 		informe3.setFecha("2021/01/07 10:10:45 PST");
-		informe3.setData("Filename,DES_Size,DES_Complexity,DES_Design Smells,SCC_LOC,SCC_CLOC,SCC_COMPLEXITY,ARCH_Revisions,ARCH_Dependent Partners,ARCH_Depends on Partners,ARCH_Total Dependencies,ARCH_CoChange Partners,ARCH_Bug Commits,ARCH_Churn,DV8_LOC,DV8_TargetChangeCount,DV8_TargetChurn,DV8_ChangeCount,DV8_ChangeChurn,DV8_TotalIssues,DV8_Clique,DV8_Crossing,DV8_IsCenter,DV8_ModularityViolation,DV8_PackageCycle,DV8_UnhealthyInheritance,DV8_UnstableInterface,DV8_isUnstableInterface,DV8_PresentInIssues,SQ_Issues,SQ_CodeSmells,SQ_Bugs,SQ_Vulnerabilities,SQ_SecuritySpots,S101_Fat,S101_ClassTangles,S101_PkgTangles\n"
+		informe3.setAnalysis("Filename,DES_Size,DES_Complexity,DES_Design Smells,SCC_LOC,SCC_CLOC,SCC_COMPLEXITY,ARCH_Revisions,ARCH_Dependent Partners,ARCH_Depends on Partners,ARCH_Total Dependencies,ARCH_CoChange Partners,ARCH_Bug Commits,ARCH_Churn,DV8_LOC,DV8_TargetChangeCount,DV8_TargetChurn,DV8_ChangeCount,DV8_ChangeChurn,DV8_TotalIssues,DV8_Clique,DV8_Crossing,DV8_IsCenter,DV8_ModularityViolation,DV8_PackageCycle,DV8_UnhealthyInheritance,DV8_UnstableInterface,DV8_isUnstableInterface,DV8_PresentInIssues,SQ_Issues,SQ_CodeSmells,SQ_Bugs,SQ_Vulnerabilities,SQ_SecuritySpots,S101_Fat,S101_ClassTangles,S101_PkgTangles\n"
 				+ "babel.src.main.java.org.apache.calcite.sql.babel.Babel_java,5,0,2,0,0,0,1,0,0,0,0,0,26,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
 				+ "babel.src.main.java.org.apache.calcite.sql.babel.package-info_java,0,0,0,0,0,0,1,0,0,0,0,0,26,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
 				+ "cassandra.src.main.java.org.apache.calcite.adapter.cassandra.CassandraEnumerator_java,78,15,1,0,0,0,2,1,8,9,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
@@ -4907,7 +4907,7 @@ public class InformeService {
 		informe4.setId("123456789");
 		informe4.setIdCommit("092");
 		informe4.setFecha("2021/01/11 10:10:45 PST");
-		informe4.setData("Filename,DES_Size,DES_Complexity,DES_Design Smells,SCC_LOC,SCC_CLOC,SCC_COMPLEXITY,ARCH_Revisions,ARCH_Dependent Partners,ARCH_Depends on Partners,ARCH_Total Dependencies,ARCH_CoChange Partners,ARCH_Bug Commits,ARCH_Churn,DV8_LOC,DV8_TargetChangeCount,DV8_TargetChurn,DV8_ChangeCount,DV8_ChangeChurn,DV8_TotalIssues,DV8_Clique,DV8_Crossing,DV8_IsCenter,DV8_ModularityViolation,DV8_PackageCycle,DV8_UnhealthyInheritance,DV8_UnstableInterface,DV8_isUnstableInterface,DV8_PresentInIssues,SQ_Issues,SQ_CodeSmells,SQ_Bugs,SQ_Vulnerabilities,SQ_SecuritySpots,S101_Fat,S101_ClassTangles,S101_PkgTangles\n"
+		informe4.setAnalysis("Filename,DES_Size,DES_Complexity,DES_Design Smells,SCC_LOC,SCC_CLOC,SCC_COMPLEXITY,ARCH_Revisions,ARCH_Dependent Partners,ARCH_Depends on Partners,ARCH_Total Dependencies,ARCH_CoChange Partners,ARCH_Bug Commits,ARCH_Churn,DV8_LOC,DV8_TargetChangeCount,DV8_TargetChurn,DV8_ChangeCount,DV8_ChangeChurn,DV8_TotalIssues,DV8_Clique,DV8_Crossing,DV8_IsCenter,DV8_ModularityViolation,DV8_PackageCycle,DV8_UnhealthyInheritance,DV8_UnstableInterface,DV8_isUnstableInterface,DV8_PresentInIssues,SQ_Issues,SQ_CodeSmells,SQ_Bugs,SQ_Vulnerabilities,SQ_SecuritySpots,S101_Fat,S101_ClassTangles,S101_PkgTangles\n"
 				+ "babel.src.main.java.org.apache.calcite.sql.babel.Babel_java,5,0,2,0,0,0,1,0,0,0,0,0,26,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
 				+ "babel.src.main.java.org.apache.calcite.sql.babel.package-info_java,0,0,0,0,0,0,1,0,0,0,0,0,26,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
 				+ "cassandra.src.main.java.org.apache.calcite.adapter.cassandra.CassandraEnumerator_java,78,15,1,0,0,0,2,1,8,9,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
@@ -6571,7 +6571,7 @@ public class InformeService {
 		informe5.setId("987654321");
 		informe5.setIdCommit("123");
 		informe5.setFecha("2020/12/21 10:10:45 PST");
-		informe5.setData("Filename,DES_Size,DES_Complexity,DES_Design Smells,SCC_LOC,SCC_CLOC,SCC_COMPLEXITY,ARCH_Revisions,ARCH_Dependent Partners,ARCH_Depends on Partners,ARCH_Total Dependencies,ARCH_CoChange Partners,ARCH_Bug Commits,ARCH_Churn,DV8_LOC,DV8_TargetChangeCount,DV8_TargetChurn,DV8_ChangeCount,DV8_ChangeChurn,DV8_TotalIssues,DV8_Clique,DV8_Crossing,DV8_IsCenter,DV8_ModularityViolation,DV8_PackageCycle,DV8_UnhealthyInheritance,DV8_UnstableInterface,DV8_isUnstableInterface,DV8_PresentInIssues,SQ_Issues,SQ_CodeSmells,SQ_Bugs,SQ_Vulnerabilities,SQ_SecuritySpots,S101_Fat,S101_ClassTangles,S101_PkgTangles\n"
+		informe5.setAnalysis("Filename,DES_Size,DES_Complexity,DES_Design Smells,SCC_LOC,SCC_CLOC,SCC_COMPLEXITY,ARCH_Revisions,ARCH_Dependent Partners,ARCH_Depends on Partners,ARCH_Total Dependencies,ARCH_CoChange Partners,ARCH_Bug Commits,ARCH_Churn,DV8_LOC,DV8_TargetChangeCount,DV8_TargetChurn,DV8_ChangeCount,DV8_ChangeChurn,DV8_TotalIssues,DV8_Clique,DV8_Crossing,DV8_IsCenter,DV8_ModularityViolation,DV8_PackageCycle,DV8_UnhealthyInheritance,DV8_UnstableInterface,DV8_isUnstableInterface,DV8_PresentInIssues,SQ_Issues,SQ_CodeSmells,SQ_Bugs,SQ_Vulnerabilities,SQ_SecuritySpots,S101_Fat,S101_ClassTangles,S101_PkgTangles\n"
 				+ "hadoop-shim-impls.hadoop-shim-2_7.src.main.java.org.apache.tez.hadoop.shim.HadoopShim25_26_27Provider_java,8,2,1,33,12,8,2,0,3,3,0,0,35,12,0,0,1,33,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0\n"
 				+ "hadoop-shim-impls.hadoop-shim-2_7.src.main.java.org.apache.tez.hadoop.shim.HadoopShim27_java,14,4,1,52,25,1,2,1,1,2,0,0,54,25,0,0,1,52,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0\n"
 				+ "hadoop-shim-impls.hadoop-shim-2_8.src.main.java.org.apache.tez.hadoop.shim.HadoopShim28Provider_java,8,2,1,30,10,3,1,0,3,3,0,0,30,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"

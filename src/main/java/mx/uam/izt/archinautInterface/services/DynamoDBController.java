@@ -4,15 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import mx.uam.izt.archinautInterface.data.DynamoDBRepository;
 import mx.uam.izt.archinautInterface.dynamodb.model.Messages;
 
 @RestController
-public class DynamoDBResource {
+@Slf4j
+public class DynamoDBController {
 	
 	@Autowired
 	DynamoDBRepository dbRepo;
@@ -25,12 +31,18 @@ public class DynamoDBResource {
 			value = "Regresa todos los reportes asociados al id pasado",
 			notes = "Regresa un json con una lista de los informes asociados al id pasado"
 			)
-	@GetMapping(value="getAllValues")
-	public List<Messages> getAllValues(){
-		List<Messages>  reportList = new ArrayList<>();
-		reportList = dbRepo.getDetails();
+	@GetMapping(path = "/informes/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity <?> retrieve(@PathVariable("id") String id){
+		log.info("Regresando reportes asociados a "+id);
 		
-		return reportList;
+		List<Messages>  reportList = new ArrayList<>();
+		reportList = dbRepo.getDetails(id);
+		
+		if(reportList != null) {
+			return ResponseEntity.status(HttpStatus.OK).body(reportList);
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron reportes asociados");
+		}
 	}
 
 }

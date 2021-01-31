@@ -17,7 +17,7 @@ public class Messages implements Serializable{
 	@DynamoDBAttribute(attributeName = "idCommit")
 	private String idCommit;
 	
-	@DynamoDBAttribute(attributeName = "analisys")
+	@DynamoDBAttribute(attributeName = "analysis")
 	private String analysis;
 	
 	@DynamoDBAttribute(attributeName = "date")

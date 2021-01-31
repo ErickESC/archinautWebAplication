@@ -10,7 +10,6 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpServerErrorException;
 
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
@@ -25,9 +24,8 @@ public class DynamoDBRepository {
 	@Resource(name="dynamoDBMapper")
 	DynamoDBMapper dbMapper;
 	
-	public List<Messages> getDetails(){
+	public List<Messages> getDetails(String idReports){
 		
-		Regions region = Regions.US_EAST_1;
 		List<Messages> listing = new ArrayList<>();
 		QueryResultPage<Messages> itemList;
 		
@@ -35,7 +33,7 @@ public class DynamoDBRepository {
 		Map<String,String> expressionAttributeNames = new HashMap<>();
 		expressionAttributeNames.put("#id", "id");
 		Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
-		expressionAttributeValues.put(":id", new AttributeValue().withS("123456789"));
+		expressionAttributeValues.put(":id", new AttributeValue().withS(idReports));
 		
 		DynamoDBQueryExpression<Messages> retrieveQuery = new DynamoDBQueryExpression<Messages>()
 		.withKeyConditionExpression("#id=:id")

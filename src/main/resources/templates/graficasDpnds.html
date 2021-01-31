@@ -32,13 +32,12 @@
       <script>
       
    $(document).ready(function(){
-		
-    	  google.charts.load('current', {'packages':['corechart']});
-  	      google.charts.setOnLoadCallback(drawChart);
-    	  
+    	
+	   	  google.charts.load('current', {'packages':['corechart']});//Importa el tipo de grafica que se utilizara
+	   
     	  $.ajaxSetup({contentType: "application/json; charset=utf-8"});
      		
-     	  var URL = "http://localhost:8080/informes";
+     	  var URL = "http://localhost:8080/informes/123456789";
      	  
     	  var headers;
     	  
@@ -52,13 +51,13 @@
 	       	
      	  $.get(URL,cargaInformes);
     	  
-     	 function cargaInformes(lista){
-   			
+     	 function cargaInformes(lista){ 
+     		 
        		// Recorre los objetos
        		var i;
        		
        		//Loas Siguientes 3 lineas son para sacar los encabezados
-	     	var allText = lista[0].data;	
+	     	var allText = lista[0].analysis;	
 	 		//Se parte el texto en renglones
 	 		var allRows = allText.split(/\r\n|\n/);
 	 		//Guardamos los encabezados en una variable aparte
@@ -69,7 +68,7 @@
 	 		
        		//Manipulannos cada informe para guardarlo en la matriz
        		for (i=0;i<lista.length;i++) {
- 	     		allText = lista[i].data;
+ 	     		allText = lista[i].analysis;
 	
  			   //Se parte el texto en renglones
  			   allRows = allText.split(/\r\n|\n/);
@@ -79,19 +78,21 @@
  		    	   var rowCells = allRows[k].split(',');
  		           
  		    	   //Guarda el arreglo de datos que hay en una linea en el arreglo de arreglos llamado informe por lo tanto lines se vuelve matriz
- 				   informe.push(rowCells); 
+ 				   informe.push(rowCells);
  		       }
  		       crono.push(informe);
  		       informe = [];//Reiniciamos la matriz despues de guardar en informe en la cronologia
        		}
+       		
+       		drawChart();
   		}
     	     
      	 //Nota manejo de matriz: matriz[profundidad][renglones][columnas]
   		//                               informes      clases     datos
-     	 
+  		
     	  	function drawChart() {
 				
-    	  		for(var i=30; i<40; i++){
+    	  		for(var i=29; i<40; i++){
    	    			 $("#graficas").append($("<pre><h2>	"+crono[0][i][0]+"</h2></pre><div id="+i+"  style=\"width: 100%; height: 500px;\"></div>"));
       	    		  		
    	    			 	var report = [
@@ -155,12 +156,6 @@
 
         <footer class="site-footer seccion">
           <div class="container contenedor-footer">
-              <nav class="navegacion-footer">
-                  <a href="/">Home</a>
-                  <a href="graficasSCC">Watch SCC</a>
-                  <a href="graficasDpns">Watch Depends</a>
-              </nav>
-
               <p class="copyright">Todos los Derechos Reservados UAM-I 2020 &copy;</p>
           </div>
         </footer>

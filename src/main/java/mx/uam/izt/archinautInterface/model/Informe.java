@@ -16,5 +16,5 @@ public class Informe {
 	
 	private String fecha;
 	
-	private String data;
+	private String Analysis;
 }
