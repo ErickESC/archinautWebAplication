@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import mx.uam.izt.archinautInterface.data.DynamoDBRepository;
+import mx.uam.izt.archinautInterface.bussines.DynamoDBService;
 import mx.uam.izt.archinautInterface.dynamodb.model.Messages;
 
 @RestController
@@ -21,7 +21,7 @@ import mx.uam.izt.archinautInterface.dynamodb.model.Messages;
 public class DynamoDBController {
 	
 	@Autowired
-	DynamoDBRepository dbRepo;
+	DynamoDBService dbService;
 	
 	/**
 	 * 
@@ -31,12 +31,12 @@ public class DynamoDBController {
 			value = "Regresa todos los reportes asociados al id pasado",
 			notes = "Regresa un json con una lista de los informes asociados al id pasado"
 			)
-	@GetMapping(path = "/informes/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(path = "/reports/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity <?> retrieve(@PathVariable("id") String id){
 		log.info("Regresando reportes asociados a "+id);
 		
 		List<Messages>  reportList = new ArrayList<>();
-		reportList = dbRepo.getDetails(id);
+		reportList = dbService.retreveAll(id);
 		
 		if(reportList != null) {
 			return ResponseEntity.status(HttpStatus.OK).body(reportList);

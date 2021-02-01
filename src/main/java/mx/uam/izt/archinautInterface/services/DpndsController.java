@@ -6,11 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import mx.uam.izt.archinautInterface.bussines.InformeService;
+import mx.uam.izt.archinautInterface.bussines.ReportService;
 import mx.uam.izt.archinautInterface.model.Datas;
 
 @RestController
@@ -18,7 +19,7 @@ import mx.uam.izt.archinautInterface.model.Datas;
 public class DpndsController {
 	
 	@Autowired
-	private InformeService informeService;
+	private ReportService reportService;
 	
 	/**
 	 * 
@@ -28,10 +29,10 @@ public class DpndsController {
 			value = "Regresa todos los datos ya procesados para Depens",
 			notes = "Regresa un json con una lista de los datos procesados"
 			)
-	@GetMapping(path = "/Datas", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity <?> retrieveAll() {
+	@GetMapping(path = "/report/dpnds/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity <?> retrieveAll(@PathVariable("id") String id) {
 		
-		Iterable <Datas> result = informeService.retriveDpnds();
+		Iterable <Datas> result = reportService.retriveDpnds(id);
 		
 		log.info("datos procesados para Depends");
 		

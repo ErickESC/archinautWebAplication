@@ -16,16 +16,18 @@ import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 
+import lombok.extern.slf4j.Slf4j;
 import mx.uam.izt.archinautInterface.dynamodb.model.Messages;
 
 @Repository
+@Slf4j
 public class DynamoDBRepository {
 	
 	@Resource(name="dynamoDBMapper")
 	DynamoDBMapper dbMapper;
 	
 	public List<Messages> getDetails(String idReports){
-		
+		log.info("Buscando en BD reportes asociados a "+idReports);
 		List<Messages> listing = new ArrayList<>();
 		QueryResultPage<Messages> itemList;
 		
@@ -45,6 +47,7 @@ public class DynamoDBRepository {
 			//DynamoDB Query
 			itemList = dbMapper.queryPage(Messages.class, retrieveQuery);
 			listing = itemList.getResults();
+			log.info("Encontrados en BD reportes asociados a "+idReports);
 		}catch(ResourceNotFoundException e) {
 			throw e;
 		}catch(HttpServerErrorException e) {

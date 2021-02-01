@@ -37,7 +37,7 @@
 	   
     	  $.ajaxSetup({contentType: "application/json; charset=utf-8"});
      		
-     	  var URL = "http://localhost:8080/informes/123456789";
+     	  var URL = "http://localhost:8080/reports/123456789";
      	  
     	  var headers;
     	  
@@ -52,7 +52,7 @@
      	  $.get(URL,cargaInformes);
     	  
      	 function cargaInformes(lista){ 
-     		 
+     		 console.log(lista);
        		// Recorre los objetos
        		var i;
        		
