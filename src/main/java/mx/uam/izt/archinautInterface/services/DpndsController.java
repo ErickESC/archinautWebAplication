@@ -1,5 +1,7 @@
 package mx.uam.izt.archinautInterface.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
@@ -12,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import mx.uam.izt.archinautInterface.bussines.ReportService;
-import mx.uam.izt.archinautInterface.model.Datas;
 
 @RestController
 @Slf4j
@@ -32,7 +33,8 @@ public class DpndsController {
 	@GetMapping(path = "/report/dpnds/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity <?> retrieveAll(@PathVariable("id") String id) {
 		
-		Iterable <Datas> result = reportService.retriveDpnds(id);
+		@SuppressWarnings("rawtypes")
+		List <List> result = reportService.retriveDpnds(id);
 		
 		log.info("datos procesados para Depends");
 		

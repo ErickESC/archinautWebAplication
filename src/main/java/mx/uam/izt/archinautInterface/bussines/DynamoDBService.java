@@ -27,10 +27,10 @@ public class DynamoDBService {
 		reportList = dbRepo.getDetails(id);
 		
 		log.info("Procesando reportes");//Acomodarlos cronologicamente
-		List<Messages>  cronoList = new ArrayList<>();
+		/*List<Messages>  cronoList = new ArrayList<>();
 		
 		
-		/*Collections.sort(reportList);
+		Collections.sort(reportList);
 		
 		
 		cronoList.add(reportList.get(0));

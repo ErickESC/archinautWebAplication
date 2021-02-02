@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import mx.uam.izt.archinautInterface.dynamodb.model.Messages;
-import mx.uam.izt.archinautInterface.model.Datas;
 
 @Service
 @Slf4j
@@ -36,13 +35,12 @@ public class ReportService {
 	 * 
 	 * @return Lista de los Informes para Depends
 	 */
-	public Iterable <Datas> retriveDpnds(String id){
+	@SuppressWarnings("rawtypes")
+	public List <List> retriveDpnds(String id){
 		log.info("Regresando arreglo con datos");
-		String report, aux="";
-		Datas dato = new Datas();
+		String[] classe, analysisPC;
 		
-		List <Datas> lista = new ArrayList<>();
-		List <Datas> listaAux = new ArrayList<>();
+		List <List> crono = new ArrayList<List>();
 		
 		Iterable <Messages> informes = dbService.retreveAll(id);
 		
@@ -50,47 +48,32 @@ public class ReportService {
 		
 		//Se guardan los datos por cada archivo del reporte en una lista
 		while(it.hasNext()) {
-			report = it.next().getAnalysis().toString();
-			for(int i=0; i<report.length();i++) {
-				if(report.charAt(i)!= '\n') {
-					aux = aux+report.charAt(i);
-				}else {
-					dato.setIdCommit(it.next().getIdCommit());
-					dato.setInfo(aux);
-					lista.add(dato);
-				}
+			classe = it.next().getAnalysis().split("\n");//Separamos en files el analisis
+			List<String[]> report = new ArrayList<>();
+			for(int i=0; i<classe.length;i++) {
+					analysisPC = classe[i].split(",");//Separamos el file en cada uno de los datos
+					report.add(analysisPC);//Guarda cada reporte de cada clase en una lista
 			}
+			crono.add(report);//Guarda cada reporte en orden cronologico
 		}
 		
-		for(int i=0; i<lista.size();i++) {
+		/*for(int i=0; i<report.size();i++) {
 			
-			String info;
-			
-			info=lista.get(i).getInfo();
-			
-			String[] datos = info.split(",");
-			
-			//Comienza Logica para Depends
-			if(Integer.parseInt(datos[12])>2 && Integer.parseInt(datos[11])>0) {
-				if(!listaAux.contains(lista.get(i))) {
-					listaAux.add(lista.get(i));
-				}
-			}
-		}
-		return listaAux;
+
+		}*/
+		return crono;
 	}
 	
 	/**
 	 * 
 	 * @return Lista de los Informes para Scc
 	 */
-	public Iterable <Datas> retriveScc(String id){
+	@SuppressWarnings("rawtypes")
+	public List <List> retriveScc(String id){
 		log.info("Regresando arreglo con datos");
-		String report, aux="";
-		Datas dato = new Datas();
+		String[] classe, analysisPC;
 		
-		List <Datas> lista = new ArrayList<>();
-		List <Datas> listaAux = new ArrayList<>();
+		List <List> crono = new ArrayList<List>();
 		
 		Iterable <Messages> informes = dbService.retreveAll(id);
 		
@@ -98,33 +81,46 @@ public class ReportService {
 		
 		//Se guardan los datos por cada archivo del reporte en una lista
 		while(it.hasNext()) {
-			report = it.next().getAnalysis().toString();
-			for(int i=0; i<report.length();i++) {
-				if(report.charAt(i)!= '\n') {
-					aux = aux+report.charAt(i);
-				}else {
-					dato.setIdCommit(it.next().getIdCommit());
-					dato.setInfo(aux);
-					lista.add(dato);
-				}
+			classe = it.next().getAnalysis().split("\n");//Separamos en files el analisis
+			List<String[]> report = new ArrayList<>();
+			for(int i=0; i<classe.length;i++) {
+					analysisPC = classe[i].split(",");//Separamos el file en cada uno de los datos
+					report.add(analysisPC);//Guarda cada reporte de cada clase en una lista
 			}
+			crono.add(report);//Guarda cada reporte en orden cronologico
 		}
 		
-		for(int i=0; i<lista.size();i++) {
+		/*for(int i=0; i<report.size();i++) {
 			
-			String info;
-			
-			info=lista.get(i).getInfo();
-			
-			String[] datos = info.split(",");
-			
-			//Comienza Logica para SCC
-			if(Integer.parseInt(datos[12])>2 && Integer.parseInt(datos[11])>0) {
-				if(!listaAux.contains(lista.get(i))) {
-					listaAux.add(lista.get(i));
-				}
-			}
-		}
-		return listaAux;
-	}	
+
+		}*/
+		return crono;
+	}
+	
+	/*
+	 * Remueve el archivo cuyo reporte tenga los 3 depends planos 
+	 */
+	@SuppressWarnings("rawtypes")
+	public List<List> removeFlatDpnds(){
+		List <List> crono = new ArrayList<List>();
+		return crono;
+	}
+	
+	/*
+	 * Remueve el archivo cuyo reporte tenga los 3 Css planos
+	 */
+	@SuppressWarnings("rawtypes")
+	public List<List> removeFlatSCC(){
+		List <List> crono = new ArrayList<List>();
+		return crono;
+	}
+	
+	/*
+	 * Remueve el archivo si Revisions, CoChange Partners, Bug Commits y Changed lines siempre han sido cero
+	 */
+	@SuppressWarnings("rawtypes")
+	public List<List> removeZeros(){
+		List <List> crono = new ArrayList<List>();
+		return crono;
+	}
 }
