@@ -20,27 +20,13 @@ public class ReportService {
 	
 	/**
 	 * 
-	 * @param Id
-	 * @return Informe al que le pertenece la matricula
-	 *
-	public Informe retrive(String IdCommit){
-		log.info("Llamado a regresar el informe "+IdCommit);
-		
-		Message informeOpt = dbService.findByIdCommit(IdCommit);
-		return informeOpt;
-	}*/
-	
-	
-	/**
-	 * 
 	 * @return Lista de los Informes para Depends
 	 */
-	@SuppressWarnings("rawtypes")
-	public List <List> retriveDpnds(String id){
+	public List <List<String[]>> retriveDpnds(String id){
 		log.info("Regresando arreglo con datos");
 		String[] classe, analysisPC;
 		
-		List <List> crono = new ArrayList<List>();
+		List <List<String[]>> crono = new ArrayList<List<String[]>>();
 		
 		Iterable <Messages> informes = dbService.retreveAll(id);
 		
@@ -57,10 +43,10 @@ public class ReportService {
 			crono.add(report);//Guarda cada reporte en orden cronologico
 		}
 		
-		/*for(int i=0; i<report.size();i++) {
-			
-
-		}*/
+		//Comienza logica
+		log.info("Buscando estadisticas planas para Depends");
+		crono = removeFlatDpnds(crono);
+		
 		return crono;
 	}
 	
@@ -68,12 +54,11 @@ public class ReportService {
 	 * 
 	 * @return Lista de los Informes para Scc
 	 */
-	@SuppressWarnings("rawtypes")
-	public List <List> retriveScc(String id){
+	public List <List<String[]>> retriveScc(String id){
 		log.info("Regresando arreglo con datos");
 		String[] classe, analysisPC;
 		
-		List <List> crono = new ArrayList<List>();
+		List <List<String[]>> crono = new ArrayList<List<String[]>>();
 		
 		Iterable <Messages> informes = dbService.retreveAll(id);
 		
@@ -90,28 +75,102 @@ public class ReportService {
 			crono.add(report);//Guarda cada reporte en orden cronologico
 		}
 		
-		/*for(int i=0; i<report.size();i++) {
-			
-
-		}*/
+		//Comienza logica
+		log.info("Buscando estadisticas planas para Scc");
+		
 		return crono;
 	}
 	
 	/*
 	 * Remueve el archivo cuyo reporte tenga los 3 depends planos 
 	 */
-	@SuppressWarnings("rawtypes")
-	public List<List> removeFlatDpnds(){
-		List <List> crono = new ArrayList<List>();
+	public List<List<String[]>> removeFlatDpnds(List<List<String[]>> crono){
+		
+		int i, Tfiles;
+		
+		Tfiles = 1557;
+		
+		log.info("procesando estadisticas planas para Depends");
+		for(i=1; i<Tfiles/*crono.get(0).size()*/;i++) {
+		
+			String[] analysisPC = crono.get(0).get(i);//Guarda el analisis por clase en un arreglo independiente
+			int Dpartners, DoPartners, TDependencies, promDP=0, promDOP=0, promTD=0;
+			
+			//Guardamos las variables de Depends
+			Dpartners = Integer.parseInt(analysisPC[8]);
+			DoPartners = Integer.parseInt(analysisPC[9]);
+			TDependencies = Integer.parseInt(analysisPC[10]);
+			
+			//Recorre los reportes para buscar como han cambiado esos valores para poder sacar un promedio
+			for(int j=0; j<crono.size(); j++) {
+				analysisPC = crono.get(j).get(i);
+				promDP += Integer.parseInt(analysisPC[8]);
+				promDOP += Integer.parseInt(analysisPC[9]);
+				promTD += Integer.parseInt(analysisPC[10]);
+			}
+			//Saca promedios
+			promDP = promDP/crono.size();
+			promDOP = promDOP/crono.size();
+			promTD = promTD/crono.size();
+			
+			//Si el promedio es igual al primer valor significa que siempre ha tenido los mismos valores
+			if(promDP == Dpartners && promDOP == DoPartners && promTD == TDependencies) {
+				//Elimina las clases con estadisticas plana
+				for(int k=0; k<crono.size(); k++) {
+					crono.get(k).remove(i);
+				}
+				//Eliminar la siguiente linea cuando El agregar clases sea soportado
+				i--;
+				Tfiles--;
+			}
+		}
+		
 		return crono;
 	}
 	
 	/*
 	 * Remueve el archivo cuyo reporte tenga los 3 Css planos
 	 */
-	@SuppressWarnings("rawtypes")
-	public List<List> removeFlatSCC(){
-		List <List> crono = new ArrayList<List>();
+	public List<List<String[]>> removeFlatSCC(List<List<String[]>> crono){
+		int i, Tfiles;
+		
+		Tfiles = 1557;
+		
+		log.info("procesando estadisticas planas para Depends");
+		for(i=1; i<Tfiles/*crono.get(0).size()*/;i++) {
+		
+			String[] analysisPC = crono.get(0).get(i);//Guarda el analisis por clase en un arreglo independiente
+			int Dpartners, DoPartners, TDependencies, promDP=0, promDOP=0, promTD=0;
+			
+			//Guardamos las variables de SCC
+			Dpartners = Integer.parseInt(analysisPC[4]);
+			DoPartners = Integer.parseInt(analysisPC[5]);
+			TDependencies = Integer.parseInt(analysisPC[6]);
+			
+			//Recorre los reportes para buscar como han cambiado esos valores para poder sacar un promedio
+			for(int j=0; j<crono.size(); j++) {
+				analysisPC = crono.get(j).get(i);
+				promDP += Integer.parseInt(analysisPC[4]);
+				promDOP += Integer.parseInt(analysisPC[5]);
+				promTD += Integer.parseInt(analysisPC[6]);
+			}
+			//Saca promedios
+			promDP = promDP/crono.size();
+			promDOP = promDOP/crono.size();
+			promTD = promTD/crono.size();
+			
+			//Si el promedio es igual al primer valor significa que siempre ha tenido los mismos valores
+			if(promDP == Dpartners && promDOP == DoPartners && promTD == TDependencies) {
+				//Elimina las clases con estadisticas plana
+				for(int k=0; k<crono.size(); k++) {
+					crono.get(k).remove(i);
+				}
+				//Eliminar la siguiente linea cuando El agregar clases sea soportado
+				i--;
+				Tfiles--;
+			}
+		}
+		
 		return crono;
 	}
 	
