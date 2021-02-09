@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import mx.uam.izt.archinautInterface.bussines.ReportService;
+import mx.uam.izt.archinautInterface.bussines.DependsService;
 
 @RestController
 @Slf4j
 public class DpndsController {
 	
 	@Autowired
-	private ReportService reportService;
+	private DependsService dpndsService;
 	
 	/**
 	 * 
@@ -33,8 +33,7 @@ public class DpndsController {
 	@GetMapping(path = "/report/dpnds/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity <?> retrieveAll(@PathVariable("id") String id) {
 		
-		@SuppressWarnings("rawtypes")
-		List <List> result = reportService.retriveDpnds(id);
+		List <List<String[]>> result = dpndsService.retriveDpnds(id);
 		
 		log.info("datos procesados para Depends");
 		

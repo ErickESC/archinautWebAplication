@@ -12,20 +12,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import mx.uam.izt.archinautInterface.bussines.ReportService;
+import mx.uam.izt.archinautInterface.bussines.SccService;
 
 @RestController
 @Slf4j
 public class SccController {
 	
 	@Autowired
-	private ReportService reportService;
+	private SccService sccService;
 	
 	/**
 	 * 
 	 * @return status ok y lista de datos ya procesados para SCC
 	 */
-	@SuppressWarnings("rawtypes")
 	@ApiOperation(
 			value = "Regresa todos los datos ya procesados para SCC",
 			notes = "Regresa un json con una lista de los datos procesados"
@@ -33,7 +32,7 @@ public class SccController {
 	@GetMapping(path = "/report/scc/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity <?> retrieveAll(@PathVariable("id") String id) {
 		
-		List <List> result = reportService.retriveScc(id);
+		List <List<String[]>> result = sccService.retriveScc(id);
 		
 		log.info("datos procesados para SCC");
 		
