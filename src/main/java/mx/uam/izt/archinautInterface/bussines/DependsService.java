@@ -1,7 +1,7 @@
 package mx.uam.izt.archinautInterface.bussines;
 
 import java.util.ArrayList;
-
+import java.util.Formatter;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,6 +49,9 @@ public class DependsService {
 		
 		log.info("Buscando estadisticas encima del promedio para Depends");
 		crono = removeMinums(crono);
+		
+		log.info("Calculando las medidas de dispersion");
+		calculateMeasures(crono);
 		
 		return crono;
 	}
@@ -100,31 +103,33 @@ public class DependsService {
 	public List<List<String[]>> removeMinums(List<List<String[]>> crono){
 		log.info("procesando estadisticas arriba del promedio");
 		
-		int i,promTD=0,lnght;
+		int i,promTD=0,lngth;
 		
-		lnght = crono.size()-1;
+		lngth = crono.size()-1;
 		//Se hace respectivo al numero de archivos que hay en el ultimo reporte
 		
 		//Comienza promedio
-		for(i=1; i<crono.get(lnght).size();i++) {
+		for(i=1; i<crono.get(lngth).size();i++) {
 			
-			String[] analysisPC = crono.get(lnght).get(i);//Guarda el analisis por clase en un arreglo independiente
+			String[] analysisPC = crono.get(lngth).get(i);//Guarda el analisis por clase en un arreglo independiente
 			
 			//Comienzan las sumas
 			promTD += Integer.parseInt(analysisPC[10]);
 		}
 		
 		//Saca promedio
-		promTD = promTD/crono.get(lnght).size();
+		promTD = promTD/crono.get(lngth).size();
 		
 		//Comienza eliminacion
-		for(i=1; i<410/*crono.get(lnght).size()*/;i++) {
-			
-			if(i==crono.get(lnght).size()) {
+		for(i=1; i<405/*crono.get(lnght).size()*/;i++) {
+			/*
+			 * Eliminar sigueinte linea y modificar siguiente linea cuanod soporte agregar archivos
+			 */
+			if(i==crono.get(lngth).size()) {
 				break;
 			}
 			
-			String[] analysisPC = crono.get(lnght).get(i);//Guarda el analisis por clase en un arreglo independiente
+			String[] analysisPC = crono.get(lngth).get(i);//Guarda el analisis por clase en un arreglo independiente
 			
 			int TDependencies;
 			
@@ -141,5 +146,87 @@ public class DependsService {
 		}
 		
 		return crono;
+	}
+	
+	/*
+	 * Genera un documento con la Varianza, Pendente, Desviacion Estandar, Media, Coeficiente de varianza para cada grafica
+	 */
+	public void calculateMeasures(List<List<String[]>> crono){
+		log.info("Calculando Varianza, Pendinte, Desviacion Estandar, Media y Coeficiente de varianza para cada grafica");
+		
+		int i,lngth, numMuestra;
+		
+		lngth = crono.size()-1;
+		numMuestra = 400;
+		
+		//Se crea el archivo
+		Formatter archivo=null;
+		
+		try {
+
+			archivo = new Formatter("C:\\Users\\eekos\\OneDrive\\Desktop\\archinautBD.csv");
+				
+			archivo.format("varianza,pendiente,stdDesv,media,coefVar,resultado%n");
+			
+			for(i=1; i<numMuestra;i++){
+				
+				float promTD=0, varianza=0, pendiente, stdDesv, media, coefVar, x1=0, x2=0;
+				
+				//Comienzan calculos
+				for(int j=0; j<crono.size();j++) {
+					
+					String[] analysisPC = crono.get(j).get(i);//Guarda el analisis por clase en un arreglo independiente
+					
+					//Comienzan las sumas
+					promTD += Integer.parseInt(analysisPC[10]);
+					
+					//Guardamos llas coordenadas del primer y ultimo punto para despues calcular la pendiente
+					if(j==0) {
+						x1 = Integer.parseInt(analysisPC[10]);
+					}
+					if(j==lngth) {
+						x2 = Integer.parseInt(analysisPC[10]);
+					}
+				}
+				
+				//Saca promedio
+				promTD = promTD/crono.size();
+				
+				//Varianza
+				for(int j=0; j<crono.size();j++) {
+					
+					String[] analysisPC = crono.get(j).get(i);//Guarda el analisis por clase en un arreglo independiente
+					
+					//Comienzan las sumas
+					varianza = (float) (varianza + Math.pow(2,(Integer.parseInt(analysisPC[10])-promTD)));
+				}
+				
+				varianza = varianza/lngth;
+				
+				//Pendiente
+				if(x1 == x2) {
+					pendiente = 0;
+				}else {
+					pendiente = lngth/(x2-x1);
+				}
+			    
+				//Desviacion Estandar
+				stdDesv = (float) Math.sqrt(varianza);
+				
+				//Media
+				media = promTD;
+				
+				//Coeficiente de variacion
+				coefVar = stdDesv/Math.abs(media);
+				
+				//Se agregan los datos al archivo
+				archivo.format("%f,%f,%f,%f,%f,%n",varianza,pendiente,stdDesv,media,coefVar);
+			}
+			
+			archivo.close();
+			
+		}catch(Exception e){
+			System.out.println("Error: "+ e.toString());
+		}
 	}
 }
