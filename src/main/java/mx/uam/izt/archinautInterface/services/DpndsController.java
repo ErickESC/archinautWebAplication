@@ -40,4 +40,23 @@ public class DpndsController {
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 		
 	}
+	
+	/**
+	 * 
+	 * @return status ok y lista del resultado del analisis de datos
+	 */
+	@ApiOperation(
+			value = "Regresa todos los datos ya procesados para Depens",
+			notes = "Regresa un json con una lista de los datos procesados"
+			)
+	@GetMapping(path = "/report/dpnds/evo", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity <?> retrieveEvo() {
+		
+		log.info("analisis de datos para Depends");
+		
+		List <String> result = dpndsService.retrieveEvo();
+		
+		return ResponseEntity.status(HttpStatus.OK).body(result);
+		
+	}
 }

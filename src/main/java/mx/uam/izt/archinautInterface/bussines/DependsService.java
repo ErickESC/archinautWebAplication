@@ -1,7 +1,6 @@
 package mx.uam.izt.archinautInterface.bussines;
 
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,6 +16,15 @@ public class DependsService {
 	
 	@Autowired
 	DynamoDBService dbService;
+	
+	private List<String> evolution = new ArrayList<>();
+	
+	/*
+	 * Regresa la lista con el resultavo de la evolucion
+	 */
+	public List<String> retrieveEvo(){
+		return evolution;
+	}
 	
 	/**
 	 * 
@@ -158,19 +166,14 @@ public class DependsService {
 		
 		lngth = crono.size()-1;
 		numMuestra = 400;
-		
-		//Se crea el archivo
-		Formatter archivo=null;
-		
-		try {
-
-			archivo = new Formatter("C:\\Users\\eekos\\OneDrive\\Desktop\\archinautBD.csv");
-				
-			archivo.format("varianza,pendiente,stdDesv,media,coefVar,resultado%n");
 			
 			for(i=1; i<numMuestra;i++){
 				
-				float promTD=0, varianza=0, pendiente, stdDesv, media, coefVar, x1=0, x2=0;
+				float promTD=0, varianza=0, pendiente, y1=0, y2=0, min, penUlt = 0;
+				
+				String[] analysisAux = crono.get(0).get(i);
+				
+				min = Integer.parseInt(analysisAux[10]);
 				
 				//Comienzan calculos
 				for(int j=0; j<crono.size();j++) {
@@ -182,10 +185,17 @@ public class DependsService {
 					
 					//Guardamos llas coordenadas del primer y ultimo punto para despues calcular la pendiente
 					if(j==0) {
-						x1 = Integer.parseInt(analysisPC[10]);
+						y1 = Integer.parseInt(analysisPC[10]);
 					}
 					if(j==lngth) {
-						x2 = Integer.parseInt(analysisPC[10]);
+						y2 = Integer.parseInt(analysisPC[10]);
+					}
+					if(j == lngth-1) {
+						penUlt = Integer.parseInt(analysisPC[10]);
+					}
+					//Comparamos para guardar el minimo
+					if(min > Integer.parseInt(analysisPC[10])) {
+						min = Integer.parseInt(analysisPC[10]);
 					}
 				}
 				
@@ -204,29 +214,83 @@ public class DependsService {
 				varianza = varianza/lngth;
 				
 				//Pendiente
-				if(x1 == x2) {
-					pendiente = 0;
+				pendiente = (y2-y1)/lngth;
+				
+				//Arbol de decision
+				if(pendiente == 0 || (pendiente < 1 && pendiente > -1)) {
+					if(varianza < 200) {
+						//Estable
+						evolution.add("Stable");
+					}else if(pendiente == 0) {
+						//Comparamos el punto minimo con el punto inicial
+						if(y1 > min) {
+							if(penUlt <= y2) {
+								//Unsucces Refactor
+								evolution.add("Unsucces refactor 1");
+							}else {
+								//Unsucces Refactor
+								evolution.add("Unsucces refactor 1 but improving");
+							}
+						}else {
+							//Succes refactor
+							evolution.add("Succes refactor 1 but without improvements");
+						}
+					}else if(pendiente < 0){
+						if(penUlt <= y2) {
+							//Unsucces Refactor
+							evolution.add("Unsucces refactor 2");
+						}else {
+							//Unsucces Refactor
+							evolution.add("Unsucces refactor 2 but improving");
+						}
+					}else {
+						if(penUlt < y2) {
+							//Succes refactor
+							evolution.add("Succes refactor 2 but degrading");
+						}else if(penUlt > y2) {
+							//Succes refactor
+							evolution.add("Succes refactor 2 and improving");
+						}else {
+							//Succes refactor
+							evolution.add("Succes refactor 2 but without improvements");
+						}
+					}
+				}else if(pendiente > 20) {
+					if(varianza >5500) {
+						if(penUlt <= y2) {
+							//Unsucces Refactor
+							evolution.add("Unsucces refactor 3");
+						}else {
+							//Unsucces Refactor
+							evolution.add("Unsucces refactor 3 but improving");
+						}
+					}else {
+						//High degrading
+						evolution.add("High degrading");
+					}
+				}else if(pendiente > 0) {
+					//Degrading
+					evolution.add("Degrading");	
+				}else if(pendiente < 20){
+					if(varianza > 5500) {
+						if(penUlt < y2) {
+							//Succes refactor
+							evolution.add("Succes refactor 3 but degrading");
+						}else if(penUlt > y2) {
+							//Succes refactor
+							evolution.add("Succes refactor 3 and improving");
+						}else {
+							//Succes refactor
+							evolution.add("Succes refactor 3 but without improvements");
+						}
+					}else {
+						//High Improving
+						evolution.add("High improving");
+					}
 				}else {
-					pendiente = lngth/(x2-x1);
+					//Improving
+					evolution.add("Improving");
 				}
-			    
-				//Desviacion Estandar
-				stdDesv = (float) Math.sqrt(varianza);
-				
-				//Media
-				media = promTD;
-				
-				//Coeficiente de variacion
-				coefVar = stdDesv/Math.abs(media);
-				
-				//Se agregan los datos al archivo
-				archivo.format("%f,%f,%f,%f,%f,%n",varianza,pendiente,stdDesv,media,coefVar);
 			}
-			
-			archivo.close();
-			
-		}catch(Exception e){
-			System.out.println("Error: "+ e.toString());
-		}
 	}
 }

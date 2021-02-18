@@ -33,34 +33,47 @@
       
    $(document).ready(function(){
     	
-	   	  google.charts.load('current', {'packages':['corechart']});//Importa el tipo de grafica que se utilizara
+	   	 google.charts.load('current', {'packages':['corechart']});//Importa el tipo de grafica que se utilizara
 	   
-    	  $.ajaxSetup({contentType: "application/json; charset=utf-8"});
+    	 $.ajaxSetup({contentType: "application/json; charset=utf-8"});
      		
-     	  var URL = "http://localhost:8080/report/dpnds/123456789";
+     	 var URL = "http://localhost:8080/report/dpnds/123456789";
      	  
-    	  var headers;
+     	 var URLEvo = "http://localhost:8080/report/dpnds/evo";
+     	  
+    	 var headers;
     	  
-    	  var crono = [];//Se crea un arreglo que se usara como matriz tridimensional
-     		
-          console.log("Ready");
+    	 var crono = [];//Se crea un arreglo que se usara como matriz tridimensional
+     	  
+    	 var evolution = [];
+    	  
+         console.log("Ready");
 	       	
-     	  $.get(URL,cargaInformes);
-    	  
+     	 $.get(URL,cargaInformes);
+     	  
      	 function cargaInformes(lista){ 
      		console.log(lista);
 
 	 		headers = lista[0][0];
        		
 	 		crono = lista;
-       		
-       		drawChart();
-  		}
+	 		
+	 		$.get(URLEvo,cargaEvo);
+	 		
+	 		
+  		 }
+     	 
+    	 function cargaEvo(lista){ 
+      		
+	 		evolution = lista;
+	 		
+	 		drawChart();
+ 		 }
     	     
      	 //Nota manejo de matriz: matriz[profundidad][renglones][columnas]
-  		//                               informes      clases     datos
+  		 //                               informes      clases     datos
   		
-    	  	function drawChart() {
+    	 function drawChart() {
 				
     	  		for(var i=1; i<crono[0].length; i++){
    	    			 $("#graficas").append($("<pre><h2>	"+crono[0][i][0]+"</h2></pre><div id="+i+"  style=\"width: 100%; height: 500px;\"></div>"));
@@ -80,19 +93,25 @@
    	    			 
       	    		  	 var data = google.visualization.arrayToDataTable(report);
 
-      	    	          var options = {
+      	    	         /*var options = {
       	    	        	title: "Revisions: begin "+crono[0][i][7]+" -> last "+crono[crono.length-1][i][7]
       	    	        		+"\n CoChange Partners: begin "+crono[0][i][11]+" -> last "+crono[crono.length-1][i][11]
       	    	        		+"\n Bug Commits: begin "+crono[0][i][12]+" -> last "+crono[crono.length-1][i][12]
       	    	        		+"\n Changed lines: begin "+crono[0][i][13]+" -> last "+crono[crono.length-1][i][13],
       	    	            hAxis: {title: 'Commits',  titleTextStyle: {color: '#333'}},
       	    	            vAxis: {minValue: 0}
-      	    	          };
-
+      	    	          };*/
+						
+      	    	         var options = {
+            	    	     title: "Analysis Result: "+evolution[i-1],
+            	    	     hAxis: {title: 'Commits',  titleTextStyle: {color: '#333'}},
+            	    	     vAxis: {minValue: 0}
+            	    	  };
+      	    	          
       	    	          var chart = new google.visualization.AreaChart(document.getElementById(""+i+""));
       	    	          chart.draw(data, options);
     	  		}
-    	  	}
+    	 }
     });
       		
       
