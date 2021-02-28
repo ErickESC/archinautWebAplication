@@ -72,11 +72,12 @@
     	     
      	 //Nota manejo de matriz: matriz[profundidad][renglones][columnas]
   		 //                               informes      clases     datos
-  		
-    	 function drawChart() {
+  		 
+  		 function drawChart() {
 				
     	  		for(var i=1; i<crono[0].length; i++){
-   	    			 $("#graficas").append($("<pre><h2>	"+crono[0][i][0]+"</h2></pre><div id="+i+"  style=\"width: 100%; height: 500px;\"></div>"));
+    	  			
+    	  			$("#graficas").append($("<pre><h2>	"+crono[0][i][0]+"</h2></pre><div id="+i+"  style=\"width: 100%; height: 500px;\"></div>"));
       	    		  		
    	    			 	var report = [
       	    	            ['Commit Num.', ""+headers[8]+"", ""+headers[9]+"", ""+headers[10]+""],
@@ -93,14 +94,6 @@
    	    			 
       	    		  	 var data = google.visualization.arrayToDataTable(report);
 
-      	    	         /*var options = {
-      	    	        	title: "Revisions: begin "+crono[0][i][7]+" -> last "+crono[crono.length-1][i][7]
-      	    	        		+"\n CoChange Partners: begin "+crono[0][i][11]+" -> last "+crono[crono.length-1][i][11]
-      	    	        		+"\n Bug Commits: begin "+crono[0][i][12]+" -> last "+crono[crono.length-1][i][12]
-      	    	        		+"\n Changed lines: begin "+crono[0][i][13]+" -> last "+crono[crono.length-1][i][13],
-      	    	            hAxis: {title: 'Commits',  titleTextStyle: {color: '#333'}},
-      	    	            vAxis: {minValue: 0}
-      	    	          };*/
 						
       	    	         var options = {
             	    	     title: "Analysis Result: "+evolution[i-1],
