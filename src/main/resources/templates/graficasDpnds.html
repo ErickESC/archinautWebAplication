@@ -14,7 +14,13 @@
 
         <!--Fuentes-->
         <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Lato:wght@400;700&display=swap" rel="stylesheet"> 
-
+        
+        <!-- Chart js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js" integrity="sha512-hZf9Qhp3rlDJBvAKvmiG+goaaKRZA6LKUO35oK6EsM0/kjPK32Yw7URqrq3Q+Nvbbt8Usss+IekL7CRn83dYmw==" crossorigin="anonymous"></script>
+        
+        <!-- Vue js -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+        
         <!--Titulo de la página-->
         <link rel="shortcut icon" href="img/iconos/pinUam24.png"> 
         <title>Archinaut</title>
@@ -26,87 +32,128 @@
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-      	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-      	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-      	
+      	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+      	    
       <script>
+   
+  	 var URL = "http://localhost:8080/report/dpnds/123456789";
+	  
+ 	 var URLEvo = "http://localhost:8080/report/dpnds/evo";
+ 	  
+	 var headers;
+	  
+	 var crono = [];//Se crea un arreglo que se usara como matriz tridimensional
+ 	  
+	 var evolution = [];
       
    $(document).ready(function(){
-    	
-	   	 google.charts.load('current', {'packages':['corechart']});//Importa el tipo de grafica que se utilizara
 	   
     	 $.ajaxSetup({contentType: "application/json; charset=utf-8"});
-     		
-     	 var URL = "http://localhost:8080/report/dpnds/123456789";
-     	  
-     	 var URLEvo = "http://localhost:8080/report/dpnds/evo";
-     	  
-    	 var headers;
-    	  
-    	 var crono = [];//Se crea un arreglo que se usara como matriz tridimensional
-     	  
-    	 var evolution = [];
     	  
          console.log("Ready");
 	       	
      	 $.get(URL,cargaInformes);
-     	  
-     	 function cargaInformes(lista){ 
-     		console.log(lista);
+    });
+   
+	 function cargaInformes(lista){ 
+  		console.log(lista);
 
 	 		headers = lista[0][0];
-       		
+    		
 	 		crono = lista;
 	 		
 	 		$.get(URLEvo,cargaEvo);
 	 		
 	 		
-  		 }
-     	 
-    	 function cargaEvo(lista){ 
-      		
+		 }
+  	 
+ 	 function cargaEvo(lista){ 
+   		
 	 		evolution = lista;
 	 		
+	 		for(var i=1; i<crono[0].length; i++){
+	 			
+	 		}
+	 		
 	 		drawChart();
- 		 }
-    	     
-     	 //Nota manejo de matriz: matriz[profundidad][renglones][columnas]
-  		 //                               informes      clases     datos
+		 }
+ 	     
+  	 //Nota manejo de matriz: matriz[profundidad][renglones][columnas]
+		 //                               informes      clases     datos
+		 
+		 function drawChart() {
   		 
-  		 function drawChart() {
-				
-    	  		for(var i=1; i<crono[0].length; i++){
-    	  			
-    	  			$("#graficas").append($("<pre><h2>	"+crono[0][i][0]+"</h2></pre><div id="+i+"  style=\"width: 100%; height: 500px;\"></div>"));
-      	    		  		
-   	    			 	var report = [
-      	    	            ['Commit Num.', ""+headers[8]+"", ""+headers[9]+"", ""+headers[10]+""],
-      	    	            
-      	    	          ];
-   	    			 	
-   	    			 	console.log("#Archivo: "+i);
-   	    			 	//Se accede a los datos de depends
-   	    			 	for(var j=0; j<crono.length;j++){
-   	    			 		var commit = [''+(j+1)+'',  parseInt(crono[j][i][8]),      parseInt(crono[j][i][9]),	parseInt(crono[j][i][10])];
-   	    			 		report.push(commit);
-   	    			 		console.log(commit);
-   	    			 	}	    			 	
-   	    			 
-      	    		  	 var data = google.visualization.arrayToDataTable(report);
-
-						
-      	    	         var options = {
-            	    	     title: "Analysis Result: "+evolution[i-1],
-            	    	     hAxis: {title: 'Commits',  titleTextStyle: {color: '#333'}},
-            	    	     vAxis: {minValue: 0}
-            	    	  };
-      	    	          
-      	    	          var chart = new google.visualization.AreaChart(document.getElementById(""+i+""));
-      	    	          chart.draw(data, options);
-    	  		}
-    	 }
-    });
-      		
+ 	  		for(var i=1; i</*crono[0].length*/100; i++){   
+   	    	    
+   	    	    var dataset1=[];
+   	    	  	var dataset2=[];
+   	    		var dataset3=[];
+   	    		
+   	    	    var labels = [];
+   	    	          
+ 	  			for(var j=0; j<crono.length;j++){
+	    			 		labels.push(j+1);
+	    			 		dataset1.push(parseInt(crono[j][i][8]));
+	    			 		dataset2.push(parseInt(crono[j][i][9]));
+	    			 		dataset3.push(parseInt(crono[j][i][10]));
+	    			 		
+	    			}
+ 	  			
+ 	  			var title = "Analysis Result: "+evolution[i-1]
+ 	  			
+ 	  			$("#graficas").append($("<pre><h2>"+crono[0][i][0]+"</h2></pre><canvas id="+i+" width=\"400\" height=\"100\"></canvas>"));
+   	    	    /*var template = "<canvas id="+i+" width=\"400\" height=\"100\"></canvas>";
+ 	  			
+   	    	 	Vue.component('component-grafica', {
+   	    		 	template: "<canvas id="+i+" width=\"400\" height=\"100\"></canvas>"
+   	    		});
+   	    	 	
+   	    	 	new Vue({
+	  		    	el: '#graficas',
+	  		    	data: myChart
+	  		  	});*/
+ 	  		 	
+ 	  		 	var ctx= document.getElementById(i).getContext("2d");
+	  	        
+ 	  		 	var myChart= new Chart(ctx,{
+	  	            type:"line",
+	  	            data:{
+	  	                labels:labels,
+	  	                datasets:[
+	  	                	{
+	  	                        label:headers[8],
+	  	                        data:dataset1,
+	  	                      	backgroundColor: 'rgb(225, 80, 80,0.5)'
+	  	                	},
+	  	                	{
+	  	                        label:headers[9],
+	  	                        data:dataset2,
+	  	                        backgroundColor:'rgb(51, 204, 51,0.5)'
+	  	                	},
+	  	                	{
+	  	                        label:headers[10],
+	  	                        data:dataset3,
+	  	                      	backgroundColor:'rgb(255, 255, 102,0.5)'
+	  	                	}]
+	  	            	},
+	  	          	options:{
+	  	          	  	title: {
+	  	              		display: true,
+	  	                	fontSize: 20,
+	  	                	fontColor: '#000',
+	  	              		text: "Analysis Result: "+evolution[i-1]
+	  	          	  	},
+	                  	scales:{
+	                      yAxes:[{
+	                              ticks:{
+	                                  beginAtZero:true
+	                              }
+	                      }]
+	                  	}
+	              	  }
+	  	        	});
+ 	  		}
+ 	 }
       
       </script>
       
@@ -134,6 +181,7 @@
         <div class="contenedor-graficas" id="graficas">
           
             <!-- GRAFICAS -->
+            <component-grafica v-bind:grafica="item"></component-grafica>
             
         </div>
 
