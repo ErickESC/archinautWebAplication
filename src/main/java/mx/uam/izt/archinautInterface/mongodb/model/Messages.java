@@ -1,4 +1,4 @@
-package mx.uam.izt.archinautInterface.dynamodb.model;
+package mx.uam.izt.archinautInterface.mongodb.model;
 
 import java.io.Serializable;
 import java.util.List;

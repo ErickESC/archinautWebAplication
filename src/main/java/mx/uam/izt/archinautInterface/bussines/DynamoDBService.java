@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import mx.uam.izt.archinautInterface.data.DynamoDBRepository;
-import mx.uam.izt.archinautInterface.dynamodb.model.Messages;
+import mx.uam.izt.archinautInterface.mongodb.model.Messages;
 
 @Service
 @Slf4j

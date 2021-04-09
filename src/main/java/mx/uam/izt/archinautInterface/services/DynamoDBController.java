@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import mx.uam.izt.archinautInterface.bussines.DynamoDBService;
-import mx.uam.izt.archinautInterface.dynamodb.model.Messages;
+import mx.uam.izt.archinautInterface.mongodb.model.Messages;
 
 @RestController
 @Slf4j

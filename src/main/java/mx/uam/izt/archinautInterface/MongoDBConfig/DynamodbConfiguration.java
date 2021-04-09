@@ -1,4 +1,4 @@
-package mx.uam.izt.archinautInterface.DynamoConfig;
+package mx.uam.izt.archinautInterface.MongoDBConfig;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

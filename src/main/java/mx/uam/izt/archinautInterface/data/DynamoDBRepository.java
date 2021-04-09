@@ -17,7 +17,7 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
-import mx.uam.izt.archinautInterface.dynamodb.model.Messages;
+import mx.uam.izt.archinautInterface.mongodb.model.Messages;
 
 @Repository
 @Slf4j
