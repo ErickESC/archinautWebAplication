@@ -13,4 +13,4 @@ server:
 spring:
   data:    mongodb:      port: 27017
       host: localhost
-      database: 
+      database: ArchinautAnalisys
