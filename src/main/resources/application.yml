@@ -13,4 +13,7 @@ server:
 spring:
   data:    mongodb:      port: 27017
       host: localhost
-      database: ArchinautAnalisys
+      database: ArchinautAnalysis
+      username: admin
+      password: V7qfeTA7APFGWwyz
+      
