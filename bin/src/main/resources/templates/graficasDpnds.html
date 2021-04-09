@@ -31,75 +31,81 @@
       	
       <script>
       
-      $(document).ready(function(){
-			
-    	  var headers;
+   $(document).ready(function(){
+    	
+	   	 google.charts.load('current', {'packages':['corechart']});//Importa el tipo de grafica que se utilizara
+	   
+    	 $.ajaxSetup({contentType: "application/json; charset=utf-8"});
+     		
+     	 var URL = "http://localhost:8080/report/dpnds/123456789";
+     	  
+     	 var URLEvo = "http://localhost:8080/report/dpnds/evo";
+     	  
+    	 var headers;
     	  
-    	  var lines = [];//Se crea un arreglo que se usara como matriz
+    	 var crono = [];//Se crea un arreglo que se usara como matriz tridimensional
+     	  
+    	 var evolution = [];
     	  
-    	  google.charts.load('current', {'packages':['corechart']});
-  	      google.charts.setOnLoadCallback(drawChart);
-    	  
-    	  $.ajax({
-  	   		url: 'docs/metricsReport.csv',
-  	    	dataType: 'text',
-  	  		}).done(successFunction);
-    		
-    		function successFunction(allText) {
-    		       
-    			   //Se parte el texto en renglones
-    			   var allRows = allText.split(/\r\n|\n/);
-    		       //Guardamos los encabezados en una variable aparte
-    		       headers = allRows[0].split(',');
+         console.log("Ready");
+	       	
+     	 $.get(URL,cargaInformes);
+     	  
+     	 function cargaInformes(lista){ 
+     		console.log(lista);
 
-    		       for (var i = 1; i < allRows.length; i++) {
-    		           
-    		    	   var rowCells = allRows[i].split(',');
-    		           
-    		    	   //Guarda el arreglo de datos que hay en una linea en el arreglo de arreglos llamado lines por lo tanto lines se vuelve matriz
-    				   lines.push(rowCells);
-    		    	   
-    		       }
-    		       console.log(lines);
-    		       console.log(headers);
-    		}
-    		
-    		function sortBy() {
-  	          
-  	    	  for(var i=0; i<10; i++){
-  	    		  
-  	    		  
-  	    	  }
-  	      	}
-    	      
-    	  	function drawChart() {
-    	          
-    	    	  for(var i=0; i<lines.length; i++){
-    	    		  
-    	    		  if(lines[i][12]>2 && lines[i][11]>0){
-    	    			  $("#graficas").append($("<pre><h2>	"+lines[i][0]+"</h2></pre><div id="+i+"  style=\"width: 100%; height: 500px;\"></div>"));
-        	    		  
-        	    		  var data = google.visualization.arrayToDataTable([
-        	    	            ['Year', ""+headers[8]+"", ""+headers[9]+"", ""+headers[10]+""],
-        	    	            ['2013',  0,      0, 	0],
-        	    	            ['2014',  parseInt(lines[i][8]),      parseInt(lines[i][9]),	parseInt(lines[i][10])],
-        	    	            ['2015',  60,       40, 50],
-        	    	          ]);
+	 		headers = lista[0][0];
+       		
+	 		crono = lista;
+	 		
+	 		$.get(URLEvo,cargaEvo);
+	 		
+	 		
+  		 }
+     	 
+    	 function cargaEvo(lista){ 
+      		
+	 		evolution = lista;
+	 		
+	 		drawChart();
+ 		 }
+    	     
+     	 //Nota manejo de matriz: matriz[profundidad][renglones][columnas]
+  		 //                               informes      clases     datos
+  		 
+  		 function drawChart() {
+				
+    	  		for(var i=1; i<crono[0].length; i++){
+    	  			
+    	  			$("#graficas").append($("<pre><h2>	"+crono[0][i][0]+"</h2></pre><div id="+i+"  style=\"width: 100%; height: 500px;\"></div>"));
+      	    		  		
+   	    			 	var report = [
+      	    	            ['Commit Num.', ""+headers[8]+"", ""+headers[9]+"", ""+headers[10]+""],
+      	    	            
+      	    	          ];
+   	    			 	
+   	    			 	console.log("#Archivo: "+i);
+   	    			 	//Se accede a los datos de depends
+   	    			 	for(var j=0; j<crono.length;j++){
+   	    			 		var commit = [''+(j+1)+'',  parseInt(crono[j][i][8]),      parseInt(crono[j][i][9]),	parseInt(crono[j][i][10])];
+   	    			 		report.push(commit);
+   	    			 		console.log(commit);
+   	    			 	}	    			 	
+   	    			 
+      	    		  	 var data = google.visualization.arrayToDataTable(report);
 
-        	    	          var options = {
-        	    	            title: "Revisions: "+lines[i][7]+"\n CoChange Partners: "+lines[i][11]+"\n Bug Commits: "+lines[i][12]+"\n Changed lines: "+lines[i][13],
-        	    	            hAxis: {title: 'Analyzes',  titleTextStyle: {color: '#333'}},
-        	    	            vAxis: {minValue: 0}
-        	    	          };
-
-        	    	          var chart = new google.visualization.AreaChart(document.getElementById(""+i+""));
-        	    	          chart.draw(data, options);  
-    	    		  }
-    	    	  }
-    	  	}
-    		
-
-    	});
+						
+      	    	         var options = {
+            	    	     title: "Analysis Result: "+evolution[i-1],
+            	    	     hAxis: {title: 'Commits',  titleTextStyle: {color: '#333'}},
+            	    	     vAxis: {minValue: 0}
+            	    	  };
+      	    	          
+      	    	          var chart = new google.visualization.AreaChart(document.getElementById(""+i+""));
+      	    	          chart.draw(data, options);
+    	  		}
+    	 }
+    });
       		
       
       </script>
@@ -133,12 +139,6 @@
 
         <footer class="site-footer seccion">
           <div class="container contenedor-footer">
-              <nav class="navegacion-footer">
-                  <a href="/">Home</a>
-                  <a href="graficasSCC">Watch SCC</a>
-                  <a href="graficasDpns">Watch Depends</a>
-              </nav>
-
               <p class="copyright">Todos los Derechos Reservados UAM-I 2020 &copy;</p>
           </div>
         </footer>

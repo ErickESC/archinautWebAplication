@@ -14,7 +14,13 @@
 
         <!--Fuentes-->
         <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Lato:wght@400;700&display=swap" rel="stylesheet"> 
-
+        
+        <!-- Chart js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js" integrity="sha512-hZf9Qhp3rlDJBvAKvmiG+goaaKRZA6LKUO35oK6EsM0/kjPK32Yw7URqrq3Q+Nvbbt8Usss+IekL7CRn83dYmw==" crossorigin="anonymous"></script>
+        
+        <!-- Vue js -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+        
         <!--Titulo de la página-->
         <link rel="shortcut icon" href="img/iconos/pinUam24.png"> 
         <title>Archinaut</title>
@@ -26,71 +32,132 @@
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-      	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-      	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-      	
+      	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+      	    
       <script>
+   
+  	 var URL = "http://localhost:8080/report/dpnds/123456789";
+	  
+ 	 var URLEvo = "http://localhost:8080/report/dpnds/evo";
+ 	  
+	 var headers;
+	  
+	 var crono = [];//Se crea un arreglo que se usara como matriz tridimensional
+ 	  
+	 var evolution = [];
       
-      $(document).ready(function(){
-			
-    	  var headers;
+   $(document).ready(function(){
+	   
+    	 $.ajaxSetup({contentType: "application/json; charset=utf-8"});
     	  
-    	  var lines = [];//Se crea un arreglo que se usara como matriz
-    	  
-    	  google.charts.load('current', {'packages':['corechart']});
-  	      google.charts.setOnLoadCallback(drawChart);
-    	  
-    	  $.ajax({
-  	   		url: 'docs/metricsReport.csv',
-  	    	dataType: 'text',
-  	  		}).done(successFunction);
+         console.log("Ready");
+	       	
+     	 $.get(URL,cargaInformes);
+    });
+   
+	 function cargaInformes(lista){ 
+  		console.log(lista);
+
+	 		headers = lista[0][0];
     		
-    		function successFunction(allText) {
-    		       
-    			   //Se parte el texto en renglones
-    			   var allRows = allText.split(/\r\n|\n/);
-    		       //Guardamos los encabezados en una variable aparte
-    		       headers = allRows[0].split(',');
-
-    		       for (var i = 1; i < allRows.length; i++) {
-    		           
-    		    	   var rowCells = allRows[i].split(',');
-    		           
-    		    	   //Guarda el arreglo de datos que hay en una linea en el arreglo de arreglos llamado lines por lo tanto lines se vuelve matriz
-    				   lines.push(rowCells);
-    		    	   
-    		       }
-    		       console.log(lines);
-    		       console.log(headers);
-    		}
-    	      
-    	  	function drawChart() {
-    	          
-    	    	  for(var i=0; i<lines.length; i++){
-    	    		  if(lines[i][12]>2 && lines[i][11]>0 && lines[i][6]>0){  
-    	    		  	  $("#graficas").append($("<pre><h2>	"+lines[i][0]+"</h2></pre><div id="+i+"  style=\"width: 100%; height: 500px;\"></div>"));
-        	    		  
-        	    		  var data = google.visualization.arrayToDataTable([
-        	    	            ['Year', ""+headers[8]+"", ""+headers[9]+"", ""+headers[10]+""],
-        	    	            ['2013',  0,      0, 	0],
-        	    	            ['2014',  parseInt(lines[i][8]),      parseInt(lines[i][9]),	parseInt(lines[i][10])],
-        	    	          ]);
-
-        	    	          var options = {
-        	    	            title: "Revisions: "+lines[i][7]+"\n CoChange Partners: "+lines[i][11]+"\n Bug Commits: "+lines[i][12]+"\n Changed lines: "+lines[i][13],
-        	    	            hAxis: {title: 'Analyzes',  titleTextStyle: {color: '#333'}},
-        	    	            vAxis: {minValue: 0}
-        	    	          };
-
-        	    	          var chart = new google.visualization.AreaChart(document.getElementById(""+i+""));
-        	    	          chart.draw(data, options);  
-    	    		  }
-    	    	   }
-    	  	}
-    		
-
-    	});
-      		
+	 		crono = lista;
+	 		
+	 		$.get(URLEvo,cargaEvo);
+	 		
+	 		
+		 }
+  	 
+ 	 function cargaEvo(lista){ 
+   		
+	 		evolution = lista;
+	 		
+	 		for(var i=1; i<crono[0].length; i++){
+	 			
+	 		}
+	 		
+	 		drawChart();
+		 }
+ 	     
+  	 //Nota manejo de matriz: matriz[profundidad][renglones][columnas]
+		 //                               informes      clases     datos
+		 
+		 function drawChart() {
+  		 
+ 	  		for(var i=1; i<crono[0].length; i++){   
+   	    	    
+   	    	    var dataset1=[];
+   	    	  	var dataset2=[];
+   	    		var dataset3=[];
+   	    		
+   	    	    var labels = [];
+   	    	          
+ 	  			for(var j=0; j<crono.length;j++){
+	    			 		labels.push(j+1);
+	    			 		dataset1.push(parseInt(crono[j][i][8]));
+	    			 		dataset2.push(parseInt(crono[j][i][9]));
+	    			 		dataset3.push(parseInt(crono[j][i][10]));
+	    			 		
+	    			}
+ 	  			
+ 	  			var title = "Analysis Result: "+evolution[i-1]
+ 	  			
+ 	  			$("#ctnr-graficas").append($("<pre><h2>"+crono[0][i][0]+"</h2></pre><canvas id="+i+" width=\"400\" height=\"100\"></canvas>"));
+   	    	    /*
+   	    	 	Vue.component('component-grafica', {
+   	    		 	template: "<canvas id="+i+" width=\"400\" height=\"100\"></canvas>"
+   	    		});
+   	    	 	
+   	    	 	new Vue({
+	  		    	el: '#graficas',
+	  		    	data: myChart
+	  		  	});*/
+ 	  		 	
+ 	  		 	var ctx= document.getElementById(i).getContext("2d");
+	  	        
+ 	  		 	var myChart= new Chart(ctx,{
+	  	            type:"line",
+	  	            data:{
+	  	                labels:labels,
+	  	                datasets:[
+	  	                	{
+	  	                        label:headers[8],
+	  	                        data:dataset1,
+	  	                      	backgroundColor: 'rgb(225, 80, 80,0.5)'
+	  	                	},
+	  	                	{
+	  	                        label:headers[9],
+	  	                        data:dataset2,
+	  	                        backgroundColor:'rgb(51, 204, 51,0.5)'
+	  	                	},
+	  	                	{
+	  	                        label:headers[10],
+	  	                        data:dataset3,
+	  	                      	backgroundColor:'rgb(255, 255, 102,0.5)'
+	  	                	}]
+	  	            	},
+	  	          	options:{
+	  	          		elements: {
+	  	              		line: {
+	  	                 		tension: 0 // disables bezier curves
+	  	              		}
+	  	         		},
+	  	          	  	title: {
+	  	              		display: true,
+	  	                	fontSize: 20,
+	  	                	fontColor: '#000',
+	  	              		text: "Analysis Result: \n\r"+evolution[i-1]
+	  	          	  	},
+	                  	scales:{
+	                      yAxes:[{
+	                              ticks:{
+	                                  beginAtZero:true
+	                              }
+	                      }]
+	                  	}
+	              	  }
+	  	        	});
+ 	  		}
+ 	 }
       
       </script>
       
@@ -115,20 +182,15 @@
           </nav>
         </div>
 
-        <div class="contenedor-graficas" id="graficas">
+        <div class="contenedor-graficas" id="ctnr-graficas">
           
             <!-- GRAFICAS -->
+            <component-grafica v-bind:grafica="item"></component-grafica>
             
         </div>
 
         <footer class="site-footer seccion">
           <div class="container contenedor-footer">
-              <nav class="navegacion-footer">
-                  <a href="/">Home</a>
-                  <a href="graficasSCC">Watch SCC</a>
-                  <a href="graficasDpns">Watch Depends</a>
-              </nav>
-
               <p class="copyright">Todos los Derechos Reservados UAM-I 2020 &copy;</p>
           </div>
         </footer>
