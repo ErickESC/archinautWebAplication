@@ -157,7 +157,7 @@ public class DependsService {
 	}
 	
 	/*
-	 * Genera un documento con la Varianza, Pendente, Desviacion Estandar, Media, Coeficiente de varianza para cada grafica
+	 * Genera la Varianza, Pendente, Desviacion Estandar, Media, Coeficiente de varianza para cada grafica
 	 */
 	public void calculateMeasures(List<List<String[]>> crono){
 		log.info("Calculando Varianza, Pendinte, Desviacion Estandar, Media y Coeficiente de varianza para cada grafica");

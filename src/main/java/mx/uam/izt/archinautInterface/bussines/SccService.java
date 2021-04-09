@@ -17,7 +17,16 @@ public class SccService {
 	
 	@Autowired
 	DynamoDBService dbService;
-
+	
+	private List<String> evolution = new ArrayList<>();
+	
+	/*
+	 * Regresa la lista con el resultavo de la evolucion
+	 */
+	public List<String> retrieveEvo(){
+		return evolution;
+	}
+	
 	/**
 	 * 
 	 * @return Lista de los Informes para Scc
@@ -45,6 +54,13 @@ public class SccService {
 		
 		//Comienza logica
 		log.info("Buscando estadisticas planas para Scc");
+		crono = removeFlatSCC(crono);
+		
+		log.info("Buscando estadisticas encima del promedio para Depends");
+		crono = removeMinums(crono);
+		
+		log.info("Calculando las medidas de dispersion");
+		calculateMeasures(crono);
 		
 		return crono;
 	}
@@ -96,11 +112,191 @@ public class SccService {
 	}
 	
 	/*
-	 * Remueve el archivo si Revisions, CoChange Partners, Bug Commits y Changed lines siempre han sido cero
+	 * Remueve el archivo si el total de dependencias del ultimo reporte es menor al promedio
 	 */
-	@SuppressWarnings("rawtypes")
-	public List<List> removeZeros(){
-		List <List> crono = new ArrayList<List>();
+	public List<List<String[]>> removeMinums(List<List<String[]>> crono){
+		log.info("procesando estadisticas arriba del promedio");
+		
+		int i,promTD=0,lngth;
+		
+		lngth = crono.size()-1;
+		//Se hace respectivo al numero de archivos que hay en el ultimo reporte
+		
+		//Comienza promedio
+		for(i=1; i<crono.get(lngth).size();i++) {
+			
+			String[] analysisPC = crono.get(lngth).get(i);//Guarda el analisis por clase en un arreglo independiente
+			
+			//Comienzan las sumas
+			promTD += Integer.parseInt(analysisPC[6]);
+		}
+		
+		//Saca promedio
+		promTD = promTD/crono.get(lngth).size();
+		
+		//Comienza eliminacion
+		for(i=1; i<405/*crono.get(lnght).size()*/;i++) {
+			/*
+			 * Eliminar sigueinte linea y modificar siguiente linea cuanod soporte agregar archivos
+			 */
+			if(i==crono.get(lngth).size()) {
+				break;
+			}
+			
+			String[] analysisPC = crono.get(lngth).get(i);//Guarda el analisis por clase en un arreglo independiente
+			
+			int TDependencies;
+			
+			TDependencies = Integer.parseInt(analysisPC[6]);
+			
+			//Se eliminan si el total de dependencias es menor que el promedio
+			if(TDependencies <= promTD) {
+				
+				for(int k=0; k<crono.size(); k++) {
+					crono.get(k).remove(i);
+				}
+				i--;
+			}
+		}
+		
 		return crono;
+	}
+	
+	/*
+	 * Genera la Varianza, Pendente, Desviacion Estandar, Media, Coeficiente de varianza para cada grafica
+	 */
+	public void calculateMeasures(List<List<String[]>> crono){
+		log.info("Calculando Varianza, Pendinte, Desviacion Estandar, Media y Coeficiente de varianza para cada grafica");
+		
+		int i,lngth, numMuestra;
+		
+		lngth = crono.size()-1;
+		numMuestra = 400;
+			
+			for(i=1; i<numMuestra;i++){
+				
+				float promTD=0, varianza=0, pendiente, y1=0, y2=0, min, penUlt = 0;
+				
+				String[] analysisAux = crono.get(0).get(i);
+				
+				min = Integer.parseInt(analysisAux[6]);
+				
+				//Comienzan calculos
+				for(int j=0; j<crono.size();j++) {
+					
+					String[] analysisPC = crono.get(j).get(i);//Guarda el analisis por clase en un arreglo independiente
+					
+					//Comienzan las sumas
+					promTD += Integer.parseInt(analysisPC[6]);
+					
+					//Guardamos llas coordenadas del primer y ultimo punto para despues calcular la pendiente
+					if(j==0) {
+						y1 = Integer.parseInt(analysisPC[6]);
+					}
+					if(j==lngth) {
+						y2 = Integer.parseInt(analysisPC[6]);
+					}
+					if(j == lngth-1) {
+						penUlt = Integer.parseInt(analysisPC[6]);
+					}
+					//Comparamos para guardar el minimo
+					if(min > Integer.parseInt(analysisPC[6])) {
+						min = Integer.parseInt(analysisPC[6]);
+					}
+				}
+				
+				//Saca promedio
+				promTD = promTD/crono.size();
+				
+				//Varianza
+				for(int j=0; j<crono.size();j++) {
+					
+					String[] analysisPC = crono.get(j).get(i);//Guarda el analisis por clase en un arreglo independiente
+					
+					//Comienzan las sumas
+					varianza = (float) (varianza + Math.pow(2,(Integer.parseInt(analysisPC[10])-promTD)));
+				}
+				
+				varianza = varianza/lngth;
+				
+				//Pendiente
+				pendiente = (y2-y1)/lngth;
+				
+				//Arbol de decision
+				if(pendiente == 0 || (pendiente < 1 && pendiente > -1)) {
+					if(varianza < 200) {
+						//Estable
+						evolution.add("Stable");
+					}else if(pendiente == 0) {
+						//Comparamos el punto minimo con el punto inicial
+						if(y1 > min) {
+							if(penUlt <= y2) {
+								//Unsucces Refactor
+								evolution.add("Unsucces refactor 1");
+							}else {
+								//Unsucces Refactor
+								evolution.add("Unsucces refactor 1 but improving");
+							}
+						}else {
+							//Succes refactor
+							evolution.add("Succes refactor 1 but without improvements");
+						}
+					}else if(pendiente < 0){
+						if(penUlt <= y2) {
+							//Unsucces Refactor
+							evolution.add("Unsucces refactor 2");
+						}else {
+							//Unsucces Refactor
+							evolution.add("Unsucces refactor 2 but improving");
+						}
+					}else {
+						if(penUlt < y2) {
+							//Succes refactor
+							evolution.add("Succes refactor 2 but degrading");
+						}else if(penUlt > y2) {
+							//Succes refactor
+							evolution.add("Succes refactor 2 and improving");
+						}else {
+							//Succes refactor
+							evolution.add("Succes refactor 2 but without improvements");
+						}
+					}
+				}else if(pendiente > 20) {
+					if(varianza >5500) {
+						if(penUlt <= y2) {
+							//Unsucces Refactor
+							evolution.add("Unsucces refactor 3");
+						}else {
+							//Unsucces Refactor
+							evolution.add("Unsucces refactor 3 but improving");
+						}
+					}else {
+						//High degrading
+						evolution.add("High degrading");
+					}
+				}else if(pendiente > 0) {
+					//Degrading
+					evolution.add("Degrading");	
+				}else if(pendiente < 20){
+					if(varianza > 5500) {
+						if(penUlt < y2) {
+							//Succes refactor
+							evolution.add("Succes refactor 3 but degrading");
+						}else if(penUlt > y2) {
+							//Succes refactor
+							evolution.add("Succes refactor 3 and improving");
+						}else {
+							//Succes refactor
+							evolution.add("Succes refactor 3 but without improvements");
+						}
+					}else {
+						//High Improving
+						evolution.add("High improving");
+					}
+				}else {
+					//Improving
+					evolution.add("Improving");
+				}
+			}
 	}
 }
