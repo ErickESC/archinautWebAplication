@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
-import mx.uam.izt.archinautInterface.data.DynamoDBRepository;
+import mx.uam.izt.archinautInterface.data.MongoDBRepository;
 import mx.uam.izt.archinautInterface.mongodb.model.Messages;
 
 @Service
@@ -15,7 +15,7 @@ import mx.uam.izt.archinautInterface.mongodb.model.Messages;
 public class DynamoDBService {
 	
 	@Autowired
-	DynamoDBRepository dbRepo;
+	MongoDBRepository dbRepo;
 	
 	/*
 	 * @return Lista de los Informes asociados al id

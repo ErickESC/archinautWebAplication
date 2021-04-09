@@ -3,16 +3,8 @@ package mx.uam.izt.archinautInterface.MongoDBConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.Protocol;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
-
 @Configuration
-public class DynamodbConfiguration {
+public class MongoDBConfiguration {
 
 	private static final DynamoDBMapperConfig.TableNameResolver TABLE_NAME_RESOLVER = (className,config) -> "ArchAnalysis";
 		ClientConfiguration getClientConfoguration() {

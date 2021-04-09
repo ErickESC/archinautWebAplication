@@ -7,21 +7,15 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpServerErrorException;
-
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.QueryResultPage;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 import mx.uam.izt.archinautInterface.mongodb.model.Messages;
 
 @Repository
-@Slf4j
-public class DynamoDBRepository {
+public interface MongoDBRepository extends MongoRepository<Messages,Integer>{
 	
 	@Resource(name="dynamoDBMapper")
 	DynamoDBMapper dbMapper;
