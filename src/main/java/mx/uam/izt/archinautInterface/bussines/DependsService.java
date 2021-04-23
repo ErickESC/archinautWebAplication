@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
-import mx.uam.izt.archinautInterface.mongodb.model.Messages;
+import mx.uam.izt.archinautInterface.mongodb.model.AnalysisResult;
 
 @Service
 @Slf4j
@@ -36,9 +36,9 @@ public class DependsService {
 		
 		List <List<String[]>> crono = new ArrayList<List<String[]>>();
 		
-		Iterable <Messages> informes = dbService.retreveAll(id);
+		Iterable <AnalysisResult> informes = dbService.retreveAll(id);
 		
-		Iterator<Messages> it = informes.iterator();
+		Iterator<AnalysisResult> it = informes.iterator();
 		
 		//Se guardan los datos por cada archivo del reporte en una lista
 		while(it.hasNext()) {

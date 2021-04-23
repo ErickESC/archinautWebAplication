@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import mx.uam.izt.archinautInterface.data.MongoDBRepository;
-import mx.uam.izt.archinautInterface.mongodb.model.Messages;
+import mx.uam.izt.archinautInterface.mongodb.model.AnalysisResult;
 
 @Service
 @Slf4j
@@ -20,16 +20,16 @@ public class DynamoDBService {
 	/*
 	 * @return Lista de los Informes asociados al id
 	 */
-	public List<Messages> retreveAll(String id){
+	public List<AnalysisResult> retreveAll(String id){
 		log.info("Buscando reportes asociados a "+id);
-		List<Messages>  reportList = new ArrayList<>();
+		List<AnalysisResult>  reportList = new ArrayList<>();
 		reportList = dbRepo.getDetails(id);
 		
 		log.info("Procesando reportes");//Acomodarlos cronologicamente
-		List<Messages>  cronoList = new ArrayList<>();
+		List<AnalysisResult>  cronoList = new ArrayList<>();
 		
 		//Mensajes auxiliares
-		Messages objlist, objAct;
+		AnalysisResult objlist, objAct;
 		
 		//Se guarda el primer reporte
 		cronoList.add(reportList.get(0));
