@@ -1,6 +1,6 @@
 package mx.uam.izt.archinautInterface.mongodb.model;
 
-import java.util.List;
+import java.util.HashMap;
 
 import lombok.Data;
 
@@ -9,5 +9,5 @@ public class Files {
 	
 	private String fileName;
 	
-	private List<Datos> datos;
+	private HashMap<Integer, Double> toolResult;//Integer(Key to know the tool) and Double(tool result) HashMap to save the result per file
 }
