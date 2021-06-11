@@ -36,82 +36,68 @@
       	    
       <script>
    
-  	 var URL = "http://localhost:8080/report/dpnds/123456789";
-	  
- 	 var URLEvo = "http://localhost:8080/report/dpnds/evo";
- 	  
-	 var headers;
+  	 var URL = "http://localhost:8080/tool";
 	  
 	 var crono = [];//Se crea un arreglo que se usara como matriz tridimensional
- 	  
-	 var evolution = [];
+	 
+	 var tool = "";
+	 
+	 function saveTool(){
+		 this.tool = document.getElementById("toolSelection").value;
+		 search();
+	 }
       
    $(document).ready(function(){
 	   
     	 $.ajaxSetup({contentType: "application/json; charset=utf-8"});
-    	  
-         console.log("Ready");
-	       	
-     	 $.get(URL,cargaInformes);
+	     
+    	 var toolsURL = URL+"/list";
+    	 
+     	 $.get(toolsURL,cargaHerramientas);
     });
    
-	 function cargaInformes(lista){ 
-  		console.log(lista);
-
-	 		headers = lista[0][0];
+   function cargaHerramientas(lista){ 
+	 		
+	  	for(i=0; i<lista.length;i++){
+			element = lista[i];
+			
+			var objOption = new Option(lista[i], lista[i]);
+                
+            document.getElementById("toolSelection").add( objOption );
+		}
+	 		
+	}
+   
+	function search(){ 
     		
-	 		crono = lista;
+		$.ajaxSetup({contentType: "application/json; charset=utf-8"});
+	    
+		var searchURL = URL+"/"+this.tool+"/report/dfsd";
+		
+    	$.get(searchURL,cargaInformes);
 	 		
-	 		$.get(URLEvo,cargaEvo);
+	}
+	
+	function cargaInformes(lista){ 
+		
+		crono = lista;
+	 	
+	  	drawChart();
 	 		
-	 		
-		 }
-  	 
- 	 function cargaEvo(lista){ 
-   		
-	 		evolution = lista;
-	 		
-	 		for(var i=1; i<crono[0].length; i++){
-	 			
-	 		}
-	 		
-	 		drawChart();
-		 }
- 	     
-  	 //Nota manejo de matriz: matriz[profundidad][renglones][columnas]
-		 //                               informes      clases     datos
-		 
-		 function drawChart() {
+	}
+   
+	function drawChart() {
   		 
- 	  		for(var i=1; i<crono[0].length; i++){   
-   	    	    
-   	    	    var dataset1=[];
-   	    	  	var dataset2=[];
-   	    		var dataset3=[];
-   	    		
-   	    	    var labels = [];
-   	    	          
- 	  			for(var j=0; j<crono.length;j++){
-	    			 		labels.push(j+1);
-	    			 		dataset1.push(parseInt(crono[j][i][8]));
-	    			 		dataset2.push(parseInt(crono[j][i][9]));
-	    			 		dataset3.push(parseInt(crono[j][i][10]));
-	    			 		
-	    			}
+ 	  		for(var i=0; i<crono.length; i++){
  	  			
- 	  			var title = "Analysis Result: "+evolution[i-1]
+ 	  			var labels = [];
  	  			
- 	  			$("#ctnr-graficas").append($("<pre><h2>"+crono[0][i][0]+"</h2></pre><canvas id="+i+" width=\"400\" height=\"100\"></canvas>"));
-   	    	    /*
-   	    	 	Vue.component('component-grafica', {
-   	    		 	template: "<canvas id="+i+" width=\"400\" height=\"100\"></canvas>"
-   	    		});
-   	    	 	
-   	    	 	new Vue({
-	  		    	el: '#graficas',
-	  		    	data: myChart
-	  		  	});*/
- 	  		 	
+ 	  			for(var j=0; j<crono[0].results.length; j++){
+ 	  				labels.push("Commit: "+j+1);
+ 	  			}
+ 	  			
+ 	  			$("#ctnr-graficas").append($("<canvas id="+i+" width=\"400\" height=\"100\"></canvas>"));
+
  	  		 	var ctx= document.getElementById(i).getContext("2d");
 	  	        
  	  		 	var myChart= new Chart(ctx,{
@@ -120,19 +106,9 @@
 	  	                labels:labels,
 	  	                datasets:[
 	  	                	{
-	  	                        label:headers[8],
-	  	                        data:dataset1,
-	  	                      	backgroundColor: 'rgb(225, 80, 80,0.5)'
-	  	                	},
-	  	                	{
-	  	                        label:headers[9],
-	  	                        data:dataset2,
-	  	                        backgroundColor:'rgb(51, 204, 51,0.5)'
-	  	                	},
-	  	                	{
-	  	                        label:headers[10],
-	  	                        data:dataset3,
-	  	                      	backgroundColor:'rgb(255, 255, 102,0.5)'
+	  	                        label:this.tool,
+	  	                        data:crono[i].results,
+	  	                      	backgroundColor: 'rgb(243, 49, 49,0.8)'
 	  	                	}]
 	  	            	},
 	  	          	options:{
@@ -145,7 +121,7 @@
 	  	              		display: true,
 	  	                	fontSize: 20,
 	  	                	fontColor: '#000',
-	  	              		text: "Analysis Result: \n\r"+evolution[i-1]
+	  	              		text: "Analysis Result: "+crono[i].fileName
 	  	          	  	},
 	                  	scales:{
 	                      yAxes:[{
@@ -157,7 +133,7 @@
 	              	  }
 	  	        	});
  	  		}
- 	 }
+ 	}
       
       </script>
       
@@ -166,9 +142,8 @@
             <div class="bg-dark pt-4 px-4 pb-1">
               <p>Options</p>
               <ul class="menu-header">
-                <!--  <li><img src="img/iconos/pinUam16.png" alt=""> <a href="/">Inicio</a></li>-->
-                <li><img src="img/iconos/pinUam16.png" alt=""> <a href="graficasSCC">Watch SCC</a></li>
-                <li><img src="img/iconos/pinUam16.png" alt=""> <a href="graficasDpnds">Watch Depends</a></li>
+                <li><img src="img/iconos/pinUam16.png" alt=""> <a href="/">Inicio</a></li>
+                <li><img src="img/iconos/pinUam16.png" alt=""> <a href="graficas">Graficas</a></li>
               </ul>
             </div>
           </div>
@@ -176,22 +151,41 @@
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
-            <h2 class="titulo-principal">Depends Analysis</h2>
+            <h2 class="titulo-principal">Analysis Results</h2>
             <img src="img/iconos/pinUam48.png" alt="">
             
           </nav>
         </div>
+		<main class="container seccion contenido-centrado">
+            <h2 class="centrar-texto">Select the tool for which you want to see the results</h2>
 
+            <form class="registro" action="">
+                <fieldset>
+                    <legend class="centrar-texto">Tool Selection</legend>
+                    
+                    <label for="toolSelection">Tool:</label>
+                    <select id="toolSelection" onchange="saveTool()" required>
+                    	<option value="" disabled selected>--Select Tool--</option>
+                       	<!-- Options se insertan con JS -->
+                    </select>
+
+
+                </fieldset>
+
+            </form>
+        </main>
         <div class="contenedor-graficas" id="ctnr-graficas">
-          
+        	<h2 class="centrar-texto">Results</h2>
             <!-- GRAFICAS -->
-            <component-grafica v-bind:grafica="item"></component-grafica>
-            
         </div>
 
         <footer class="site-footer seccion">
           <div class="container contenedor-footer">
-              <p class="copyright">Todos los Derechos Reservados UAM-I 2020 &copy;</p>
+          	<nav class="navegacion-footer">
+                  <a href="/">Inicio</a>
+                  <a href="graficas">Ver Graficas</a>
+            </nav>
+            <p class="copyright">Todos los Derechos Reservados UAM-I 2020 &copy;</p>
           </div>
         </footer>
     </body>

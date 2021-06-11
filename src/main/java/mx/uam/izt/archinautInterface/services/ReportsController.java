@@ -31,7 +31,7 @@ public class ReportsController {
 			value = "Regresa todos los datos ya procesados de acuerdo a la herramienta seleccionada",
 			notes = "Regresa un json con una lista de los datos procesados"
 			)
-	@GetMapping(path = "/report/{idPoject}/tool/{toolName}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(path = "/tool/{toolName}/report/{idPoject}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity <?> retrieveAll(@PathVariable("idPoject") String idPoject, @PathVariable("toolName") String toolName) {
 		
 		List <fileCronoResults> result = reportService.retriveToolAnalysis(toolName);
@@ -50,7 +50,7 @@ public class ReportsController {
 			value = "Regresa una lista de las herramientas utilizadas en el proyecto",
 			notes = "Regresa un json con una lista de herramientas"
 			)
-	@GetMapping(path = "/report/tool/list", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(path = "tool/list", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity <?> retrieveEvo() {
 		
 		log.info("lista de herramientas");
