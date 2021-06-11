@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import mx.uam.izt.archinautInterface.mongodb.model.AnalysisResult;
 
 @Repository
-public interface MongoDBRepository extends MongoRepository<AnalysisResult,Integer>{
+public interface MongoDBRepository extends MongoRepository<AnalysisResult,String>{
 }

@@ -1,85 +1,132 @@
 package mx.uam.izt.archinautInterface.bussines;
 
 import java.util.ArrayList;
-
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
+import mx.uam.izt.archinautInterface.data.MongoDBRepository;
 import mx.uam.izt.archinautInterface.mongodb.model.AnalysisResult;
+import mx.uam.izt.archinautInterface.mongodb.model.Files;
+import mx.uam.izt.archinautInterface.mongodb.model.fileCronoResults;
 
 @Service
 @Slf4j
 public class ReportService {
 	
 	@Autowired
-	DynamoDBService dbService;
+	MongoDBRepository mongoRepository;
+	
+	private List <AnalysisResult> reports;
 	
 	/**
 	 * 
-	 * @return Lista de los Informes para Depends
+	 * @return tool used list
 	 */
-	public List <List<String[]>> retriveDpnds(String id){
-		log.info("Regresando arreglo con datos");
-		String[] classe, analysisPC;
+	public List <String> retriveToolList(){
+		List<String> toolList = new LinkedList<>();
 		
-		List <List<String[]>> crono = new ArrayList<List<String[]>>();
+		this.reports = mongoRepository.findAll();
 		
-		Iterable <AnalysisResult> informes = dbService.retreveAll(id);
+		Iterator<AnalysisResult> it = reports.iterator();
 		
-		Iterator<AnalysisResult> it = informes.iterator();
-		
-		//Se guardan los datos por cada archivo del reporte en una lista
 		while(it.hasNext()) {
-			classe = it.next().getAnalysis().split("\n");//Separamos en files el analisis
-			List<String[]> report = new ArrayList<>();
-			for(int i=0; i<classe.length;i++) {
-					analysisPC = classe[i].split(",");//Separamos el file en cada uno de los datos
-					report.add(analysisPC);//Guarda cada reporte de cada clase en una lista
+			AnalysisResult aux = it.next();
+			HashMap<Integer, String> toolMap = aux.getToolMap();
+			for(String tool : toolMap.values()) {
+				if(!(toolList.contains(tool))) {
+					toolList.add(tool);
+				}
 			}
-			crono.add(report);//Guarda cada reporte en orden cronologico
 		}
 		
-		//Comienza logica
-		log.info("Buscando estadisticas planas para Depends");
-		crono = removeFlatDpnds(crono);
-		
-		return crono;
+		return toolList;
 	}
 	
 	/**
 	 * 
-	 * @return Lista de los Informes para Scc
+	 * @return resports matriz that matches with the name
 	 */
-	public List <List<String[]>> retriveScc(String id){
-		log.info("Regresando arreglo con datos");
-		String[] classe, analysisPC;
+	public List <fileCronoResults> retriveToolAnalysis(String toolName){
 		
-		List <List<String[]>> crono = new ArrayList<List<String[]>>();
+		List <fileCronoResults> cronoResults = new ArrayList<fileCronoResults>();//Matriz that is going to be retrieved
 		
-		Iterable <AnalysisResult> informes = dbService.retreveAll(id);
+		Iterator<AnalysisResult> it = this.reports.iterator();
 		
-		Iterator<AnalysisResult> it = informes.iterator();
+		List<String> fileNames = new ArrayList<>();
 		
-		//Se guardan los datos por cada archivo del reporte en una lista
+		//For each report gather the results per file
 		while(it.hasNext()) {
-			classe = it.next().getAnalysis().split("\n");//Separamos en files el analisis
-			List<String[]> report = new ArrayList<>();
-			for(int i=0; i<classe.length;i++) {
-					analysisPC = classe[i].split(",");//Separamos el file en cada uno de los datos
-					report.add(analysisPC);//Guarda cada reporte de cada clase en una lista
+			AnalysisResult aux = it.next();
+			HashMap<Integer, String> toolMap = aux.getToolMap();
+			
+			List<Files> files = aux.getFiles();
+			Iterator<Files> itFiles = files.iterator();
+			
+			Integer key = -1;//If the tool was not used on the report will keep the -1 value
+			
+			for (Entry<Integer, String> entry : toolMap.entrySet()) {//Look for the key into the tool map from the report at the moment
+				if(toolName.equals(entry.getValue())) {
+			    	key = entry.getKey();
+			    	break;
+			    } 
 			}
-			crono.add(report);//Guarda cada reporte en orden cronologico
+			
+			
+			if(key != -1) {//If tool was used then gather the data, if toll was not used then just skips the report
+				while(itFiles.hasNext()) {//for each file saves the name and the result
+					Files auxFile = itFiles.next();
+					
+					HashMap<Integer, Double> toolResult = auxFile.getToolResult();
+					
+					Double result = toolResult.get(key);
+					
+					if(fileNames.contains(auxFile.getFileName())) {//If the name is on the names list then the object already exist
+						
+						for(int i=0; i<cronoResults.size(); i++) {
+							fileCronoResults auxCrono = cronoResults.get(i);
+							if((auxFile.getFileName()).equals(auxCrono.getFileName())) {
+								log.info("Encontre File: "+auxCrono.getFileName());
+								//Create and fill the object
+								fileCronoResults newFileResult = new fileCronoResults();
+								List<Double> lastResults = auxCrono.getResults();
+								lastResults.add(result);
+								
+								newFileResult.setFileName(auxFile.getFileName());
+								newFileResult.setResults(lastResults);
+								
+								cronoResults.set(i, newFileResult);//Saves the result on the real object
+								log.info("Objeto Final: "+cronoResults.get(i));
+								break;
+							}
+						}
+					}else {//Then the object does not exist and must be created
+						//Create and fill the object
+						fileCronoResults newFile = new fileCronoResults();
+						List<Double> newResults = new ArrayList<>();
+						newResults.add(result);
+						
+						newFile.setFileName(auxFile.getFileName());
+						newFile.setResults(newResults);
+						//Adds the new file to the crono results list
+						cronoResults.add(newFile);
+						//Adds the file name to the file names list
+						fileNames.add(auxFile.getFileName());
+					}
+				}
+			}
 		}
 		
-		//Comienza logica
-		log.info("Buscando estadisticas planas para Scc");
-		
-		return crono;
+		return cronoResults;
 	}
+	
+	
 	
 	/*
 	 * Remueve el archivo cuyo reporte tenga los 3 depends planos 
