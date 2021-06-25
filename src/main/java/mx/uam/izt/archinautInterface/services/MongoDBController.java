@@ -54,20 +54,4 @@ public class MongoDBController {
 		return ResponseEntity.status(HttpStatus.OK).body(archResult);
 		
 	}
-
-	@ApiOperation(
-			value = "elimina analisis",
-			notes = "Recibe un json del analysis"
-			)
-	@DeleteMapping(path = "/mongo/{projectId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity <?> delete(@PathVariable("projectId") String projectID) {
-		
-		if(mongoRepository.existsById(projectID)){
-			mongoRepository.deleteById(projectID);
-			
-			return ResponseEntity.status(HttpStatus.OK).build();
-		}else {
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-		}
-	}
 }

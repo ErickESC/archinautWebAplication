@@ -40,10 +40,14 @@
 	  
 	 var crono = [];//Se crea un arreglo que se usara como matriz tridimensional
 	 
-	 var tool = "";
+	 var configurationsList = [];//Se crea un arreglo que se usara como matriz tridimensional
 	 
-	 function saveTool(){
-		 this.tool = document.getElementById("toolSelection").value;
+	 var metric = "";
+	 
+	 var threshold = "";
+	 
+	 function saveMetric(){
+		 this.metric = document.getElementById("metricSelection").value;
 		 search();
 	 }
       
@@ -51,19 +55,28 @@
 	   
     	 $.ajaxSetup({contentType: "application/json; charset=utf-8"});
 	     
-    	 var toolsURL = URL+"/list";
+    	 var metricsURL = URL+"/list";
     	 
-     	 $.get(toolsURL,cargaHerramientas);
+    	 var configurationsURL = URL+"/configuration/project/hdmsantander-snake";
+    	 
+     	 $.get(metricsURL,processMetrics);
+     	 
+     	 $.get(configurationsURL,processConfigurations);
     });
    
-   function cargaHerramientas(lista){ 
+   function processConfigurations(list){ 
+	   configurationsList = list;
+	   console.log(list);
+	}
+   
+   function processMetrics(list){ 
 	 		
-	  	for(i=0; i<lista.length;i++){
-			element = lista[i];
+	  	for(i=0; i<list.length;i++){
+			element = list[i];
 			
-			var objOption = new Option(lista[i], lista[i]);
+			var objOption = new Option(list[i], list[i]);
                 
-            document.getElementById("toolSelection").add( objOption );
+            document.getElementById("metricSelection").add( objOption );
 		}
 	 		
 	}
@@ -72,15 +85,17 @@
     		
 		$.ajaxSetup({contentType: "application/json; charset=utf-8"});
 	    
-		var searchURL = URL+"/"+this.tool+"/report/dfsd";
+		var searchURL = URL+"/"+this.metric+"/report/dfsd";
 		
-    	$.get(searchURL,cargaInformes);
+    	$.get(searchURL,processReports);
+    	
+    	
 	 		
 	}
 	
-	function cargaInformes(lista){ 
+	function processReports(list){ 
 		
-		crono = lista;
+		crono = list;
 	 	
 	  	drawChart();
 	 		
@@ -93,7 +108,8 @@
  	  			var labels = [];
  	  			
  	  			for(var j=0; j<crono[0].results.length; j++){
- 	  				labels.push("Commit: "+j+1);
+ 	  				var numCommit = j+1;
+ 	  				labels.push("Commit: "+numCommit);
  	  			}
  	  			
  	  			$("#ctnr-graficas").append($("<canvas id="+i+" width=\"400\" height=\"100\"></canvas>"));
@@ -106,7 +122,7 @@
 	  	                labels:labels,
 	  	                datasets:[
 	  	                	{
-	  	                        label:this.tool,
+	  	                        label:this.metric,
 	  	                        data:crono[i].results,
 	  	                      	backgroundColor: 'rgb(243, 49, 49,0.8)'
 	  	                	}]
@@ -134,7 +150,18 @@
 	  	        	});
  	  		}
  	}
-      
+	
+	
+	
+	function saveThresholdValue(){
+		 this.threshold = document.getElementById("thresholdInput").value;
+		 console.log(this.threshold);
+	}
+    
+	function saveThreshold(){
+		console.log("Saving Threshold");
+		
+	}
       </script>
       
       <div class="sticky-top site-header">
@@ -157,19 +184,24 @@
           </nav>
         </div>
 		<main class="container seccion contenido-centrado">
-            <h2 class="centrar-texto">Select the tool for which you want to see the results</h2>
+            <h2 class="centrar-texto">Select the metric for which you want to see the results</h2>
 
             <form class="registro" action="">
                 <fieldset>
-                    <legend class="centrar-texto">Tool Selection</legend>
+                    <legend class="centrar-texto">Metric Selection</legend>
                     
-                    <label for="toolSelection">Tool:</label>
-                    <select id="toolSelection" onchange="saveTool()" required>
-                    	<option value="" disabled selected>--Select Tool--</option>
+                    <label for="metricSelection">Metric:</label>
+                    <select id="metricSelection" onchange="saveMetric()" required>
+                    	<option value="" disabled selected>--Select Metric--</option>
                        	<!-- Options se insertan con JS -->
                     </select>
-
-
+                    
+					<label for="thresholdInput">Metric Threshold:</label>
+                    <input id="thresholdInput" type="number" onkeyup="saveThresholdValue()"></input>
+					
+					<a style="color: #ffffff;" id="botonSaveThreshold" class="boton boton-rojo" href='javascript:;' onclick="saveThreshold();">Save Metric Threshold</a>
+					<a style="color: #ffffff;" id="botonSaveThreshold" class="boton boton-verde" href='javascript:;' onclick="getHigher();">Higher than Average</a>
+					<a style="color: #ffffff;" id="botonSaveThreshold" class="boton boton-verde" href='javascript:;' onclick="getLower();">Lower than Average</a>
                 </fieldset>
 
             </form>

@@ -19,8 +19,8 @@ public class AnalysisResult {//Analysis Result
 	
 	private Date date;
 	
-	private HashMap<Integer, String> toolMap;
+	private HashMap<Integer, String> metricsMap;
 	
-	private List<Files> files;
+	private List<File> files;
 
 }
