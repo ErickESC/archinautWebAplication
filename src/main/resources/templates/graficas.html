@@ -138,7 +138,7 @@
  	  				}
  	  			}
  	  			for(var j=0; j<array[i].results.length; j++){
- 	  				if(j < this.thresholdIndex){//Saves on the before threshold array
+ 	  				if(j <= this.thresholdIndex){//Saves on the before threshold array
  	  					datasetBfrThreshold.push(array[i].results[j]);
  	  					datasetAfrThreshold.push(null);
  	  				}else{//Saves on the after threshold array
@@ -156,12 +156,12 @@
 	  	                labels:labels,
 	  	                datasets:[
 	  	                	{
-	  	                        label:this.metric,
+	  	                        label:this.metric+" before threshold",
 	  	                        data:datasetBfrThreshold,
 	  	                      	backgroundColor: 'rgb(243, 49, 49, 1)'
 	  	                	},
 	  	                	{
-	  	                        label:this.metric,
+	  	                        label:this.metric+" after threshold",
 	  	                        data:datasetAfrThreshold,
 	  	                      	backgroundColor: 'rgb(255, 205, 86, 1)'
 	  	                	}
@@ -216,6 +216,12 @@
 	function saveThresholdValue(){
 		 this.currentThreshold = document.getElementById("thresholdInput").value;
 		 
+	    for(let metric of configurationsList.metricsConfigurations){//Look for the metrics's threshold
+	    	if(metric.metricName == this.metric){
+	    		 metric.threshold = this.currentThreshold;
+	    		return;
+	    	}
+	    } 
 	}
     
 	function saveThreshold(){
