@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import mx.uam.izt.archinautInterface.bussines.ReportService;
-import mx.uam.izt.archinautInterface.mongodb.model.fileCronoResults;
+import mx.uam.izt.archinautInterface.mongodb.model.FileCronoResults;
 
 @RestController
 @Slf4j
@@ -34,7 +34,7 @@ public class ReportsController {
 	@GetMapping(path = "/tool/{toolName}/report/{idPoject}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity <?> retrieveAll(@PathVariable("idPoject") String idPoject, @PathVariable("toolName") String toolName) {
 		
-		List <fileCronoResults> result = reportService.retriveToolAnalysis(toolName);
+		List <FileCronoResults> result = reportService.retriveToolAnalysis(toolName);
 		
 		log.info("datos procesados");
 		

@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import mx.uam.izt.archinautInterface.data.MongoDBRepository;
 import mx.uam.izt.archinautInterface.mongodb.model.AnalysisResult;
 import mx.uam.izt.archinautInterface.mongodb.model.File;
-import mx.uam.izt.archinautInterface.mongodb.model.fileCronoResults;
+import mx.uam.izt.archinautInterface.mongodb.model.FileCronoResults;
 
 @Service
 @Slf4j
@@ -22,9 +22,6 @@ public class ReportService {
 	
 	@Autowired
 	MongoDBRepository mongoRepository;
-	
-	//To save if the file is decreasing or improving
-	private List<String> evolution = new ArrayList<>();
 	
 	private List <AnalysisResult> reports;
 	
@@ -56,9 +53,9 @@ public class ReportService {
 	 * 
 	 * @return resports matriz that matches with the name
 	 */
-	public List <fileCronoResults> retriveToolAnalysis(String toolName){
+	public List <FileCronoResults> retriveToolAnalysis(String toolName){
 		
-		List <fileCronoResults> cronoResults = new ArrayList<fileCronoResults>();//Matriz that is going to be retrieved
+		List <FileCronoResults> cronoResults = new ArrayList<FileCronoResults>();//Matriz that is going to be retrieved
 		
 		Iterator<AnalysisResult> it = this.reports.iterator();
 		
@@ -93,11 +90,11 @@ public class ReportService {
 					if(fileNames.contains(auxFile.getFileName())) {//If the name is on the names list then the object already exist
 						
 						for(int i=0; i<cronoResults.size(); i++) {
-							fileCronoResults auxCrono = cronoResults.get(i);
+							FileCronoResults auxCrono = cronoResults.get(i);
 							if((auxFile.getFileName()).equals(auxCrono.getFileName())) {
 								log.info("Encontre File: "+auxCrono.getFileName());
 								//Create and fill the object
-								fileCronoResults newFileResult = new fileCronoResults();
+								FileCronoResults newFileResult = new FileCronoResults();
 								List<Double> lastResults = auxCrono.getResults();
 								lastResults.add(result);
 								
@@ -111,7 +108,7 @@ public class ReportService {
 						}
 					}else {//Then the object does not exist and must be created
 						//Create and fill the object
-						fileCronoResults newFile = new fileCronoResults();
+						FileCronoResults newFile = new FileCronoResults();
 						List<Double> newResults = new ArrayList<>();
 						newResults.add(result);
 						
@@ -126,230 +123,198 @@ public class ReportService {
 			}
 		}
 		
+		cronoResults = removeFlatMetrics(cronoResults);
+		cronoResults = calculateMeasures(cronoResults);
+		
 		return cronoResults;
 	}
 	
 	/*
 	 * Removes the file if its report has flat metrics on depends
 	 */
-	public List<List<String[]>> removeFlatDpnds(List<List<String[]>> crono){
+	public List <FileCronoResults> removeFlatMetrics(List <FileCronoResults> cronoResults){
 		
-		int i, Tfiles;
-		
-		Tfiles = 1557;
-		
-		for(i=1; i<Tfiles/*crono.get(0).size()*/;i++) {
-		
-			String[] analysisPC = crono.get(0).get(i);//Saves the analysis per class into an independent array
-			int TDependencies, promTD=0;
+		Iterator<FileCronoResults> it = cronoResults.iterator();
+		log.info(""+cronoResults);
+		while(it.hasNext()) {
+			FileCronoResults currentFile = it.next();
+			List<Double> results = currentFile.getResults();
 			
-			//Save the total dependencies at the beginning
-			TDependencies = Integer.parseInt(analysisPC[10]);
+			int lgnth=results.size();;
+			Double average=0.0, lastValue=0.0;
 			
-			//Searches into the project to get the average
-			for(int j=0; j<crono.size(); j++) {
-				analysisPC = crono.get(j).get(i);
-				promTD += Integer.parseInt(analysisPC[10]);
+			//Gets the average
+			for(int j=0; j<results.size(); j++) {
+				if(results.get(j) != null) {
+					average += results.get(j);
+					lastValue = results.get(j);
+				}else {
+					lgnth -= 1;
+				}
 			}
-			//Gets Average
-			promTD = promTD/crono.size();
+			average = average/lgnth;
 			
 			//If average is equal to the first metric then it is a flat metric
-			if(promTD == TDependencies) {
-				//Earases flat metrics
-				for(int k=0; k<crono.size(); k++) {
-					crono.get(k).remove(i);
-				}
-				i--;
-				Tfiles--;
+			if(average == lastValue) {
+				cronoResults.remove(currentFile);
 			}
 		}
 		
-		return crono;
-	}
-	
-	/*
-	 * Removes files which its average is lower than average
-	 */
-	public List<List<String[]>> removeMinums(List<List<String[]>> crono){
-		log.info("procesando estadisticas arriba del promedio");
-		
-		int i,promTD=0,lngth;
-		
-		lngth = crono.size()-1;//Actualizar
-		
-		//Starts Average
-		for(i=1; i<crono.get(lngth).size();i++) {
-			
-			String[] analysisPC = crono.get(lngth).get(i);//Saves the analysis into an array
-			
-			//Starts summation
-			promTD += Integer.parseInt(analysisPC[10]);
-		}
-		
-		//Gets Average
-		promTD = promTD/crono.get(lngth).size();
-		
-		//starts Elimination
-		for(i=1; i<405/*crono.get(lnght).size()*/;i++) {
-			if(i==crono.get(lngth).size()) {
-				break;
-			}
-			
-			String[] analysisPC = crono.get(lngth).get(i);//Saves the analysis
-			
-			int TDependencies;
-			
-			TDependencies = Integer.parseInt(analysisPC[10]);
-			
-			//Removes if total is lower than average
-			if(TDependencies <= promTD) {
-				
-				for(int k=0; k<crono.size(); k++) {
-					crono.get(k).remove(i);
-				}
-				i--;
-			}
-		}
-		
-		return crono;
+		return cronoResults;
 	}
 	
 	/*
 	 * Genera la Varianza, Pendente, Desviacion Estandar, Media, Coeficiente de varianza para cada grafica
 	 */
-	public void calculateMeasures(List<List<String[]>> crono){
+	public List <FileCronoResults> calculateMeasures(List <FileCronoResults> cronoResults){
 		log.info("Calculando Varianza, Pendinte, Desviacion Estandar, Media y Coeficiente de varianza para cada grafica");
 		
-		int i,lngth, numMuestra;
-		
-		lngth = crono.size()-1;
-		numMuestra = 400;
+		for(int i=0; i<cronoResults.size(); i++) {
+			FileCronoResults currentFile = cronoResults.get(i);
+			List<Double> results = currentFile.getResults();
 			
-			for(i=1; i<numMuestra;i++){
-				
-				float promTD=0, varianza=0, pendiente, y1=0, y2=0, min, penUlt = 0;
-				
-				String[] analysisAux = crono.get(0).get(i);
-				
-				min = Integer.parseInt(analysisAux[10]);
-				
-				//Comienzan calculos
-				for(int j=0; j<crono.size();j++) {
+			Double average=0.0, variance=0.0, slope, y1=0.0, y2=0.0, min=0.0, bfrLast = 0.0;
+			
+			int lgnth=results.size(), lastIndex=0;
+			
+			//finds the first real value
+			for(int j=0; j<results.size(); j++) {
+				if(results.get(j) != null) {
+					//Save as min the first element
+					min = results.get(j);
+					//Save the first and last element to calculate the slope
+					y1 = results.get(j);
 					
-					String[] analysisPC = crono.get(j).get(i);//Guarda el analisis por clase en un arreglo independiente
-					
-					//Comienzan las sumas
-					promTD += Integer.parseInt(analysisPC[10]);
-					
-					//Guardamos llas coordenadas del primer y ultimo punto para despues calcular la pendiente
-					if(j==0) {
-						y1 = Integer.parseInt(analysisPC[10]);
-					}
-					if(j==lngth) {
-						y2 = Integer.parseInt(analysisPC[10]);
-					}
-					if(j == lngth-1) {
-						penUlt = Integer.parseInt(analysisPC[10]);
-					}
-					//Comparamos para guardar el minimo
-					if(min > Integer.parseInt(analysisPC[10])) {
-						min = Integer.parseInt(analysisPC[10]);
-					}
-				}
-				
-				//Saca promedio
-				promTD = promTD/crono.size();
-				
-				//Varianza
-				for(int j=0; j<crono.size();j++) {
-					
-					String[] analysisPC = crono.get(j).get(i);
-					
-					//CStarts summation
-					varianza = (float) (varianza + Math.pow(2,(Integer.parseInt(analysisPC[10])-promTD)));
-				}
-				
-				varianza = varianza/lngth;
-				
-				//Pendiente
-				pendiente = (y2-y1)/lngth;
-				
-				//Arbol de decision
-				if(pendiente == 0 || (pendiente < 1 && pendiente > -1)) {
-					if(varianza < 200) {
-						//Stable
-						evolution.add("Stable");
-					}else if(pendiente == 0) {
-						//Compares first point with last point
-						if(y1 > min) {
-							if(penUlt <= y2) {
-								//Unsucces Refactor
-								evolution.add("Unsucces refactor 1");
-							}else {
-								//Unsucces Refactor
-								evolution.add("Unsucces refactor 1 but improving");
-							}
-						}else {
-							//Succes refactor
-							evolution.add("Succes refactor 1 but without improvements");
-						}
-					}else if(pendiente < 0){
-						if(penUlt <= y2) {
-							//Unsucces Refactor
-							evolution.add("Unsucces refactor 2");
-						}else {
-							//Unsucces Refactor
-							evolution.add("Unsucces refactor 2 but improving");
-						}
-					}else {
-						if(penUlt < y2) {
-							//Succes refactor
-							evolution.add("Succes refactor 2 but degrading");
-						}else if(penUlt > y2) {
-							//Succes refactor
-							evolution.add("Succes refactor 2 and improving");
-						}else {
-							//Succes refactor
-							evolution.add("Succes refactor 2 but without improvements");
-						}
-					}
-				}else if(pendiente > 20) {
-					if(varianza >5500) {
-						if(penUlt <= y2) {
-							//Unsucces Refactor
-							evolution.add("Unsucces refactor 3");
-						}else {
-							//Unsucces Refactor
-							evolution.add("Unsucces refactor 3 but improving");
-						}
-					}else {
-						//High degrading
-						evolution.add("High degrading");
-					}
-				}else if(pendiente > 0) {
-					//Degrading
-					evolution.add("Degrading");	
-				}else if(pendiente < 20){
-					if(varianza > 5500) {
-						if(penUlt < y2) {
-							//Succes refactor
-							evolution.add("Succes refactor 3 but degrading");
-						}else if(penUlt > y2) {
-							//Succes refactor
-							evolution.add("Succes refactor 3 and improving");
-						}else {
-							//Succes refactor
-							evolution.add("Succes refactor 3 but without improvements");
-						}
-					}else {
-						//High Improving
-						evolution.add("High improving");
-					}
-				}else {
-					//Improving
-					evolution.add("Improving");
+					break;
 				}
 			}
+			
+			//Saves the element before the last element
+			bfrLast = results.get(results.size()-2);
+			//Begins the algebra
+			//Gets the average and the minus
+			for(int j=0; j<results.size(); j++) {
+				if(results.get(j) != null) {
+					average += results.get(j);
+					//compare to get minus
+					if(min > results.get(j)) {
+						min = results.get(j);
+					}
+					lastIndex = j;
+				}else {
+					lgnth -= 1;
+				}
+			}
+			average = average/lgnth;//Average
+			
+			y2 = results.get(lastIndex-1);//Saves the last real value
+			
+			//Variance
+			for(int j=0; j<results.size(); j++) {
+				if(results.get(j) != null) {
+					variance = (variance + Math.pow(2,(results.get(j)-average)));
+				}
+			}
+
+			variance = variance/lgnth;
+				
+			//Slope
+			slope = (y2-y1)/lgnth;
+			
+			//Decision three
+			if(slope == 0 || (slope < 1 && slope > -1)) {
+				if(variance < 200) {
+					//Stable
+					currentFile.setTendency("Stable");
+					cronoResults.set(i, currentFile);
+				}else if(slope == 0) {
+					//Compares first point with last point
+					if(y1 > min) {
+						if(bfrLast <= y2) {
+							//Unsucces Refactor
+							currentFile.setTendency("Unsucces refactor 1");
+							cronoResults.set(i, currentFile);
+						}else {
+							//Unsucces Refactor
+							currentFile.setTendency("Unsucces refactor 1 but improving");
+							cronoResults.set(i, currentFile);
+						}
+					}else {
+						//Succes refactor
+						currentFile.setTendency("Succes refactor 1 but without improvements");
+						cronoResults.set(i, currentFile);
+					}
+				}else if(slope < 0){
+					if(bfrLast <= y2) {
+						//Unsucces Refactor
+						currentFile.setTendency("Unsucces refactor 2");
+						cronoResults.set(i, currentFile);
+					}else {
+						//Unsucces Refactor
+						currentFile.setTendency("Unsucces refactor 2 but improving");
+						cronoResults.set(i, currentFile);
+					}
+				}else {
+					if(bfrLast < y2) {
+						//Succes refactor
+						currentFile.setTendency("Succes refactor 2 but degrading");
+						cronoResults.set(i, currentFile);
+					}else if(bfrLast > y2) {
+						//Succes refactor
+						currentFile.setTendency("Succes refactor 2 and improving");
+						cronoResults.set(i, currentFile);
+					}else {
+						//Succes refactor
+						currentFile.setTendency("Succes refactor 2 but without improvements");
+						cronoResults.set(i, currentFile);
+					}
+				}
+			}else if(slope > 20) {
+				if(variance >5500) {
+					if(bfrLast <= y2) {
+						//Unsucces Refactor
+						currentFile.setTendency("Unsucces refactor 3");
+						cronoResults.set(i, currentFile);
+					}else {
+						//Unsucces Refactor
+						currentFile.setTendency("Unsucces refactor 3 but improving");
+						cronoResults.set(i, currentFile);
+					}
+				}else {
+					//High degrading
+					currentFile.setTendency("High degrading");
+					cronoResults.set(i, currentFile);
+				}
+			}else if(slope > 0) {
+				//Degrading
+				currentFile.setTendency("Degrading");
+				cronoResults.set(i, currentFile);
+			}else if(slope < 20){
+				if(variance > 5500) {
+					if(bfrLast < y2) {
+						//Succes refactor
+						currentFile.setTendency("Succes refactor 3 but degrading");
+						cronoResults.set(i, currentFile);
+					}else if(bfrLast > y2) {
+						//Succes refactor
+						currentFile.setTendency("Succes refactor 3 and improving");
+						cronoResults.set(i, currentFile);
+					}else {
+						//Succes refactor
+						currentFile.setTendency("Succes refactor 3 but without improvements");
+						cronoResults.set(i, currentFile);
+					}
+				}else {
+					//High Improving
+					currentFile.setTendency("High improving");
+					cronoResults.set(i, currentFile);
+				}
+			}else {
+				//Improving
+				currentFile.setTendency("Improving");
+				cronoResults.set(i, currentFile);
+			}
+		}
+		return cronoResults;
 	}
 }

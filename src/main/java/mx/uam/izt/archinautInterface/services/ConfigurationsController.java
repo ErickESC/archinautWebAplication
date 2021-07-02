@@ -14,8 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import mx.uam.izt.archinautInterface.bussines.ConfigurationService;
-import mx.uam.izt.archinautInterface.mongodb.model.configurationsList;
-import mx.uam.izt.archinautInterface.mongodb.model.metricConfiguration;
+import mx.uam.izt.archinautInterface.mongodb.model.ConfigurationsList;
 
 @RestController
 @Slf4j
@@ -34,7 +33,7 @@ public class ConfigurationsController {
 	@GetMapping(path = "/tool/configuration/project/{projectName}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity <?> retrieveAll(@PathVariable("projectName") String projectName) {
 		
-		configurationsList result = configurationService.retrieveAll(projectName);
+		ConfigurationsList result = configurationService.retrieveAll(projectName);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 		
@@ -50,11 +49,11 @@ public class ConfigurationsController {
 			notes = "Permite crear un nuevo pokemon"
 			)
 	@PostMapping(path = "/tool/configuration/list", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity <?> create(@RequestBody configurationsList newConfigList) {
+	public ResponseEntity <?> create(@RequestBody ConfigurationsList newConfigList) {
 		
 		log.info("Recibí llamada a create con "+newConfigList);
 		
-		configurationsList configList = configurationService.create(newConfigList);
+		ConfigurationsList configList = configurationService.create(newConfigList);
 		
 		if(configList != null) {
 			return ResponseEntity.status(HttpStatus.CREATED).body(configList);
@@ -69,15 +68,15 @@ public class ConfigurationsController {
 	 * @return status ok y configuracion actualizada, status no content en caso contrario, status conflict en caso de error
 	 */
 	@ApiOperation(
-			value = "Actualiza pokemon",
-			notes = "Permite actualizar los datos de un pokemon existente en la DB"
+			value = "Actualiza lista de metricas",
+			notes = "Permite actualizar los datos de una lista de metricas existente en la DB"
 			)
 	@PutMapping(path = "/tool/configuration/update/project/{projectName}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity <?> update(@PathVariable("projectName") String projectName, @RequestBody metricConfiguration newConfig) {
+	public ResponseEntity <?> update(@PathVariable("projectName") String projectName, @RequestBody ConfigurationsList newConfigList) {
 		
-		log.info("Recibí llamada a update con "+ newConfig);
+		log.info("Recibí llamada a update con "+ newConfigList);
 		
-		configurationsList configList = configurationService.saveMetricConfiguration(newConfig, projectName);
+		ConfigurationsList configList = configurationService.saveMetricConfiguration(newConfigList, projectName);
 				
 		return ResponseEntity.status(HttpStatus.OK).body(configList);
 

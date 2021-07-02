@@ -5,8 +5,10 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class fileCronoResults {
+public class FileCronoResults {
 	private String fileName;
 	
 	private List<Double> results;
+	//To save if the file is decreasing or improving
+	private String tendency;
 }

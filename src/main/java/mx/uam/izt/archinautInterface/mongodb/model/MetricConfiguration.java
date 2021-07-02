@@ -3,7 +3,7 @@ package mx.uam.izt.archinautInterface.mongodb.model;
 import lombok.Data;
 
 @Data
-public class metricConfiguration {
+public class MetricConfiguration {
 	
 	private String metricName;
 	

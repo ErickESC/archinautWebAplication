@@ -42,14 +42,13 @@
 	 
 	 var configurationsList = [];//Se crea un arreglo que se usara como matriz tridimensional
 	 
+	 var higherThreshold = [];
+	 
+	 var lowerThreshold = [];
+	 
 	 var metric = "";
 	 
-	 var threshold = "";
-	 
-	 function saveMetric(){
-		 this.metric = document.getElementById("metricSelection").value;
-		 search();
-	 }
+	 var currentThreshold = "";
       
    $(document).ready(function(){
 	   
@@ -59,14 +58,13 @@
     	 
     	 var configurationsURL = URL+"/configuration/project/hdmsantander-snake";
     	 
-     	 $.get(metricsURL,processMetrics);
+     	 $.get(metricsURL,processMetrics);//Getting the graphics
      	 
-     	 $.get(configurationsURL,processConfigurations);
+     	 $.get(configurationsURL,processConfigurations);//Getting the configurations
     });
    
    function processConfigurations(list){ 
 	   configurationsList = list;
-	   console.log(list);
 	}
    
    function processMetrics(list){ 
@@ -81,6 +79,11 @@
 	 		
 	}
    
+    function saveMetric(){
+		 this.metric = document.getElementById("metricSelection").value;
+		 search();
+	}
+   
 	function search(){ 
     		
 		$.ajaxSetup({contentType: "application/json; charset=utf-8"});
@@ -89,30 +92,61 @@
 		
     	$.get(searchURL,processReports);
     	
-    	
+    	for(let metric of configurationsList.metricsConfigurations){//Look for the metrics's threshold
+    		if(metric.metricName == this.metric){
+    			document.getElementById("thresholdInput").value = metric.threshold;
+    			this.currentThreshold = metric.threshold;
+    			return;
+    		}
+    	}
 	 		
 	}
 	
 	function processReports(list){ 
 		
-		crono = list;
+		crono = list;console.log(crono);
 	 	
-	  	drawChart();
+	  	drawChart(crono);
 	 		
 	}
    
-	function drawChart() {
-  		 
- 	  		for(var i=0; i<crono.length; i++){
+	function drawChart(array) {
+		
+		$("#ctnr-graficas").empty();
+		
+ 	  		for(var i=0; i<array.length; i++){
  	  			
  	  			var labels = [];
  	  			
- 	  			for(var j=0; j<crono[0].results.length; j++){
+ 	  			var datasetBfrThreshold = [];
+ 	  			
+ 	  			var datasetAfrThreshold = [];
+ 	  			
+ 	  			var thresholdIndex;
+ 	  			
+ 	  			for(var j=0; j<array[i].results.length; j++){
+ 	  				//To get all the commits
  	  				var numCommit = j+1;
  	  				labels.push("Commit: "+numCommit);
  	  			}
  	  			
- 	  			$("#ctnr-graficas").append($("<canvas id="+i+" width=\"400\" height=\"100\"></canvas>"));
+ 	  			for(var j=0; j<array[i].results.length; j++){
+ 	  				//To find where the dataset passes the threshold
+ 	  				if(array[i].results[j] >= this.currentThreshold){
+ 	  					thresholdIndex = j;
+ 	  					break;
+ 	  				}
+ 	  			}
+ 	  			for(var j=0; j<array[i].results.length; j++){
+ 	  				if(j < this.thresholdIndex){//Saves on the before threshold array
+ 	  					datasetBfrThreshold.push(array[i].results[j]);
+ 	  					datasetAfrThreshold.push(null);
+ 	  				}else{//Saves on the after threshold array
+ 	  					datasetAfrThreshold.push(array[i].results[j]);
+ 	  				}
+ 	  			}
+ 	  			
+ 	  			$("#ctnr-graficas").append($("<h3 class=\"centrar-texto\">"+array[i].fileName+"</h3>"+"<canvas id="+i+" width=\"400\" height=\"100\"></canvas>"));
 
  	  		 	var ctx= document.getElementById(i).getContext("2d");
 	  	        
@@ -123,10 +157,16 @@
 	  	                datasets:[
 	  	                	{
 	  	                        label:this.metric,
-	  	                        data:crono[i].results,
-	  	                      	backgroundColor: 'rgb(243, 49, 49,0.8)'
-	  	                	}]
-	  	            	},
+	  	                        data:datasetBfrThreshold,
+	  	                      	backgroundColor: 'rgb(243, 49, 49, 1)'
+	  	                	},
+	  	                	{
+	  	                        label:this.metric,
+	  	                        data:datasetAfrThreshold,
+	  	                      	backgroundColor: 'rgb(255, 205, 86, 1)'
+	  	                	}
+	  	                ]
+	  	            },
 	  	          	options:{
 	  	          		elements: {
 	  	              		line: {
@@ -137,7 +177,7 @@
 	  	              		display: true,
 	  	                	fontSize: 20,
 	  	                	fontColor: '#000',
-	  	              		text: "Analysis Result: "+crono[i].fileName
+	  	              		text: "Analysis Result: "+array[i].tendency
 	  	          	  	},
 	                  	scales:{
 	                      yAxes:[{
@@ -151,11 +191,31 @@
  	  		}
  	}
 	
+	function getHigher(){
+		higherThreshold = [];
+		for(var i=0; i<crono.length; i++){
+			var last = crono[i].results.length - 1;
+			if(crono[i].results[last] >= this.currentThreshold){
+				higherThreshold.push(crono[i]);
+			}
+		}
+		drawChart(higherThreshold);
+	}
 	
+	function getLower(){
+		lowerThreshold = [];
+		for(var i=0; i<crono.length; i++){
+			var last = crono[i].results.length - 1;
+			if(crono[i].results[last] <= this.currentThreshold){
+				lowerThreshold.push(crono[i]);
+			}
+		}
+		drawChart(lowerThreshold);
+	}
 	
 	function saveThresholdValue(){
-		 this.threshold = document.getElementById("thresholdInput").value;
-		 console.log(this.threshold);
+		 this.currentThreshold = document.getElementById("thresholdInput").value;
+		 
 	}
     
 	function saveThreshold(){
@@ -199,15 +259,16 @@
 					<label for="thresholdInput">Metric Threshold:</label>
                     <input id="thresholdInput" type="number" onkeyup="saveThresholdValue()"></input>
 					
-					<a style="color: #ffffff;" id="botonSaveThreshold" class="boton boton-rojo" href='javascript:;' onclick="saveThreshold();">Save Metric Threshold</a>
-					<a style="color: #ffffff;" id="botonSaveThreshold" class="boton boton-verde" href='javascript:;' onclick="getHigher();">Higher than Average</a>
-					<a style="color: #ffffff;" id="botonSaveThreshold" class="boton boton-verde" href='javascript:;' onclick="getLower();">Lower than Average</a>
+					<a style="color: #ffffff;" id="botonDraw" class="boton boton-verde" href='javascript:;' onclick="drawChart(crono);">Draw it</a>
+					<a style="color: #ffffff;" id="botonHigher" class="boton boton-verde" href='javascript:;' onclick="getHigher();">Higher than Threshold</a>
+					<a style="color: #ffffff;" id="botonLower" class="boton boton-verde" href='javascript:;' onclick="getLower();">Lower than Threshold</a>
+					<a style="color: #ffffff;" id="botonSaveThreshold" class="boton boton-rojo" href='javascript:;' onclick="saveThreshold();">Save All Thresholds</a>
                 </fieldset>
 
             </form>
         </main>
+        <h2 class="centrar-texto">Results</h2>
         <div class="contenedor-graficas" id="ctnr-graficas">
-        	<h2 class="centrar-texto">Results</h2>
             <!-- GRAFICAS -->
         </div>
 

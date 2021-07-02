@@ -9,9 +9,9 @@ import lombok.Data;
 
 @Data
 @Document
-public class configurationsList {
+public class ConfigurationsList {
 	@Id
 	private String projectName;
 	
-	private List<metricConfiguration> metricsConfigurations;
+	private List<MetricConfiguration> metricsConfigurations;
 }
