@@ -13,9 +13,9 @@ import lombok.Data;
 public class AnalysisResult {//Analysis Result
 	
 	
-	private String projectId;
+	private String idProject;
 	@Id
-	private String commitID;
+	private String idCommit;
 	
 	private Date date;
 	

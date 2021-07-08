@@ -1,12 +1,16 @@
 package mx.uam.izt.archinautInterface.bussines;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -317,4 +321,124 @@ public class ReportService {
 		}
 		return cronoResults;
 	}
+	
+	/*
+	 * Parses an ArchinautObject into an AnalysisResult object
+	 */
+	@SuppressWarnings("rawtypes")
+	public AnalysisResult parseArchinautObject(JSONObject archResult) throws Exception{
+		
+		// getting idProject, idCommit and date
+        String idProject = (String) archResult.get("id");
+        String idCommit = (String) archResult.get("idCommit");
+        
+        String dateString = (String) archResult.get("date");
+        Date date = stringToDate(dateString); 
+        
+        // getting files from the ArchinautReport
+        ArrayList files = (ArrayList) archResult.get("files");
+        
+        //Create the metrics map for this report
+        HashMap<Integer, String> newMetricsMap = createMetricsMap(files);
+        
+        
+        //Create the files list for this report
+        List<File> reportFiles = createFilesList(files, newMetricsMap);
+        
+        //Create the object that is going to be saved on the database
+        AnalysisResult newAnalysisResult = new AnalysisResult();
+        //Fill the object
+        newAnalysisResult.setIdProject(idProject);
+        newAnalysisResult.setIdCommit(idCommit);
+        newAnalysisResult.setDate(date);
+        newAnalysisResult.setMetricsMap(newMetricsMap);
+        newAnalysisResult.setFiles(reportFiles);
+        
+        return newAnalysisResult;
+	}
+	
+	/*
+	 * Saves the new report into the database
+	 */
+	public AnalysisResult saveArchinautReport(JSONObject archResult) throws Exception{
+		
+		return parseArchinautObject(archResult);
+	}
+	
+	/*
+	 * Parses the archinaut String date to Date format of Java
+	 */
+	public Date stringToDate(String dateString) throws Exception{
+		
+		String dateAndTime[] = dateString.split("T");
+        String dateNoTime = dateAndTime[0];
+        String time[] = dateAndTime[1].split("-");
+        String dateFormat = dateNoTime.concat(" ");
+        dateFormat = dateFormat.concat(time[0]);
+        Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateFormat);
+        
+        return date;
+	}
+	
+	/*
+	 * Creates a new metricsMap based on the ArchinautReport
+	 */
+	@SuppressWarnings("rawtypes")
+	public HashMap<Integer, String> createMetricsMap(ArrayList files) {
+		
+		HashMap<Integer, String> newMetricsMap = new HashMap<Integer, String>();
+		
+        //First Iteration to fill the newMetricsMap using the first file(all the files has the same metrics)
+        Iterator metricsIterator = ((Map) files.get(0)).entrySet().iterator();
+    	
+        Integer metricKey = 0;
+        
+        while (metricsIterator.hasNext()) {
+            Map.Entry pair = (Entry) metricsIterator.next();
+            if(pair.getKey() != "Filename") {
+            	newMetricsMap.put(metricKey, (String) pair.getKey());
+            	metricKey++;
+            }
+        }
+        
+        return newMetricsMap;
+	}
+	
+	/*
+	 * Creates the list of Files(our project class) based on the ArchinautReport
+	 */
+	@SuppressWarnings("rawtypes")
+	public List<File> createFilesList(ArrayList files, HashMap<Integer, String> newMetricsMap) {
+		
+		List<File> reportFiles = new ArrayList<File>();
+    	
+        // iterating files
+        for(int i=0; i<files.size(); i++) {
+        	
+        	Iterator itr1 = ((Map) files.get(i)).entrySet().iterator();
+        	
+        	//Creates an auxiliary file
+        	File currentFile = new File();
+        	//Creates an auxiliary map for file metrics result
+        	HashMap<Integer, Double> currentFileMetricResult = new HashMap<Integer, Double>();
+        	// iterating the results per file
+            while (itr1.hasNext()) {
+                Map.Entry pair = (Entry) itr1.next();
+                if(pair.getKey() == "Filename") {
+                	currentFile.setFileName((String) pair.getValue());
+                }else {
+                	for(int j = 0; j<newMetricsMap.size(); j++) {//Look for the metric key to match the metrics map and the metrics result map
+            			if(pair.getKey() == newMetricsMap.get(j)) {
+            				currentFileMetricResult.put(j, Double.parseDouble((String)pair.getValue()));
+            			}
+            		}
+                } 
+            }
+            currentFile.setMetricResult(currentFileMetricResult);
+            reportFiles.add(currentFile);
+        }
+        
+        return reportFiles;
+	}
+	
 }
