@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,17 +28,19 @@ public class ReportService {
 	@Autowired
 	MongoDBRepository mongoRepository;
 	
+	@Autowired
+	ConfigurationService configSevice;
+	
 	private List <AnalysisResult> reports;
 	
 	/**
 	 * 
 	 * @return tool used list
 	 */
-	public List <String> retriveToolList(){
+	public List <String> retriveToolList(String idProject){
 		List<String> toolList = new LinkedList<>();
 		
-		this.reports = mongoRepository.findAll();
-		
+		this.reports = mongoRepository.findByIdProject(idProject, Sort.by(Sort.Direction.ASC, "date"));
 		Iterator<AnalysisResult> it = reports.iterator();
 		
 		while(it.hasNext()) {
@@ -96,7 +99,6 @@ public class ReportService {
 						for(int i=0; i<cronoResults.size(); i++) {
 							FileCronoResults auxCrono = cronoResults.get(i);
 							if((auxFile.getFileName()).equals(auxCrono.getFileName())) {
-								log.info("Encontre File: "+auxCrono.getFileName());
 								//Create and fill the object
 								FileCronoResults newFileResult = new FileCronoResults();
 								List<Double> lastResults = auxCrono.getResults();
@@ -106,7 +108,6 @@ public class ReportService {
 								newFileResult.setResults(lastResults);
 								
 								cronoResults.set(i, newFileResult);//Saves the result on the real object
-								log.info("Objeto Final: "+cronoResults.get(i));
 								break;
 							}
 						}
@@ -139,7 +140,7 @@ public class ReportService {
 	public List <FileCronoResults> removeFlatMetrics(List <FileCronoResults> cronoResults){
 		
 		Iterator<FileCronoResults> it = cronoResults.iterator();
-		log.info(""+cronoResults);
+		
 		while(it.hasNext()) {
 			FileCronoResults currentFile = it.next();
 			List<Double> results = currentFile.getResults();
@@ -159,7 +160,7 @@ public class ReportService {
 			average = average/lgnth;
 			
 			//If average is equal to the first metric then it is a flat metric
-			if(average == lastValue) {
+			if(average == lastValue || average == 0) {
 				cronoResults.remove(currentFile);
 			}
 		}
@@ -177,148 +178,151 @@ public class ReportService {
 			FileCronoResults currentFile = cronoResults.get(i);
 			List<Double> results = currentFile.getResults();
 			
-			Double average=0.0, variance=0.0, slope, y1=0.0, y2=0.0, min=0.0, bfrLast = 0.0;
-			
-			int lgnth=results.size(), lastIndex=0;
-			
-			//finds the first real value
-			for(int j=0; j<results.size(); j++) {
-				if(results.get(j) != null) {
-					//Save as min the first element
-					min = results.get(j);
-					//Save the first and last element to calculate the slope
-					y1 = results.get(j);
-					
-					break;
-				}
-			}
-			
-			//Saves the element before the last element
-			bfrLast = results.get(results.size()-2);
-			//Begins the algebra
-			//Gets the average and the minus
-			for(int j=0; j<results.size(); j++) {
-				if(results.get(j) != null) {
-					average += results.get(j);
-					//compare to get minus
-					if(min > results.get(j)) {
-						min = results.get(j);
-					}
-					lastIndex = j;
-				}else {
-					lgnth -= 1;
-				}
-			}
-			average = average/lgnth;//Average
-			
-			y2 = results.get(lastIndex-1);//Saves the last real value
-			
-			//Variance
-			for(int j=0; j<results.size(); j++) {
-				if(results.get(j) != null) {
-					variance = (variance + Math.pow(2,(results.get(j)-average)));
-				}
-			}
-
-			variance = variance/lgnth;
+			if(!results.isEmpty() && results.size()>1 && !results.contains(null)) {
+				Double average=0.0, variance=0.0, slope, y1=0.0, y2=0.0, min=0.0, bfrLast = 0.0;
 				
-			//Slope
-			slope = (y2-y1)/lgnth;
-			
-			//Decision three
-			if(slope == 0 || (slope < 1 && slope > -1)) {
-				if(variance < 200) {
-					//Stable
-					currentFile.setTendency("Stable");
-					cronoResults.set(i, currentFile);
-				}else if(slope == 0) {
-					//Compares first point with last point
-					if(y1 > min) {
+				int lgnth=results.size(), lastIndex=0;
+				
+				//finds the first real value
+				for(int j=0; j<results.size(); j++) {
+					if(results.get(j) != null) {
+						//Save as min the first element
+						min = results.get(j);
+						//Save the first and last element to calculate the slope
+						y1 = results.get(j);
+						
+						break;
+					}
+				}
+				//Saves the element before the last element
+				bfrLast = results.get(results.size()-2);
+				
+				//Begins the algebra
+				//Gets the average and the minus
+				for(int j=0; j<results.size(); j++) {
+					if(results.get(j) != null) {
+						average += results.get(j);
+						//compare to get minus
+						if(min > results.get(j)) {
+							min = results.get(j);
+						}
+						lastIndex = j;
+					}else {
+						lgnth -= 1;
+					}
+				}
+				average = average/lgnth;//Average
+				
+				y2 = results.get(lastIndex-1);//Saves the last real value
+				
+				//Variance
+				for(int j=0; j<results.size(); j++) {
+					if(results.get(j) != null) {
+						variance = (variance + Math.pow(2,(results.get(j)-average)));
+					}
+				}
+
+				variance = variance/lgnth;
+					
+				//Slope
+				slope = (y2-y1)/lgnth;
+				
+				//Decision three
+				if(slope == 0 || (slope < 1 && slope > -1)) {
+					if(variance < 200) {
+						//Stable
+						currentFile.setTendency("Stable");
+						cronoResults.set(i, currentFile);
+					}else if(slope == 0) {
+						//Compares first point with last point
+						if(y1 > min) {
+							if(bfrLast <= y2) {
+								//Unsucces Refactor
+								currentFile.setTendency("Unsucces refactor");
+								cronoResults.set(i, currentFile);
+							}else {
+								//Unsucces Refactor
+								currentFile.setTendency("Unsucces refactor but improving");
+								cronoResults.set(i, currentFile);
+							}
+						}else {
+							//Succes refactor
+							currentFile.setTendency("Succes refactor and stable");
+							cronoResults.set(i, currentFile);
+						}
+					}else if(slope < 0){
 						if(bfrLast <= y2) {
 							//Unsucces Refactor
-							currentFile.setTendency("Unsucces refactor 1");
+							currentFile.setTendency("Unsucces refactor");
 							cronoResults.set(i, currentFile);
 						}else {
 							//Unsucces Refactor
-							currentFile.setTendency("Unsucces refactor 1 but improving");
+							currentFile.setTendency("Unsucces refactor but improving");
 							cronoResults.set(i, currentFile);
 						}
 					}else {
-						//Succes refactor
-						currentFile.setTendency("Succes refactor 1 but without improvements");
+						if(bfrLast < y2) {
+							//Succes refactor
+							currentFile.setTendency("Succes refactor but degrading");
+							cronoResults.set(i, currentFile);
+						}else if(bfrLast > y2) {
+							//Succes refactor
+							currentFile.setTendency("Succes refactor and improving");
+							cronoResults.set(i, currentFile);
+						}else {
+							//Succes refactor
+							currentFile.setTendency("Succes refactor and stable");
+							cronoResults.set(i, currentFile);
+						}
+					}
+				}else if(slope > 20) {
+					if(variance >5500) {
+						if(bfrLast <= y2) {
+							//Unsucces Refactor
+							currentFile.setTendency("Unsucces refactor");
+							cronoResults.set(i, currentFile);
+						}else {
+							//Unsucces Refactor
+							currentFile.setTendency("Unsucces refactor but improving");
+							cronoResults.set(i, currentFile);
+						}
+					}else {
+						//High degrading
+						currentFile.setTendency("High degrading");
 						cronoResults.set(i, currentFile);
 					}
-				}else if(slope < 0){
-					if(bfrLast <= y2) {
-						//Unsucces Refactor
-						currentFile.setTendency("Unsucces refactor 2");
-						cronoResults.set(i, currentFile);
+				}else if(slope > 0) {
+					//Degrading
+					currentFile.setTendency("Degrading");
+					cronoResults.set(i, currentFile);
+				}else if(slope < 20){
+					if(variance > 5500) {
+						if(bfrLast < y2) {
+							//Succes refactor
+							currentFile.setTendency("Succes refactor but degrading");
+							cronoResults.set(i, currentFile);
+						}else if(bfrLast > y2) {
+							//Succes refactor
+							currentFile.setTendency("Succes refactor and improving");
+							cronoResults.set(i, currentFile);
+						}else {
+							//Succes refactor
+							currentFile.setTendency("Succes refactor and stable");
+							cronoResults.set(i, currentFile);
+						}
 					}else {
-						//Unsucces Refactor
-						currentFile.setTendency("Unsucces refactor 2 but improving");
+						//High Improving
+						currentFile.setTendency("High improving");
 						cronoResults.set(i, currentFile);
 					}
 				}else {
-					if(bfrLast < y2) {
-						//Succes refactor
-						currentFile.setTendency("Succes refactor 2 but degrading");
-						cronoResults.set(i, currentFile);
-					}else if(bfrLast > y2) {
-						//Succes refactor
-						currentFile.setTendency("Succes refactor 2 and improving");
-						cronoResults.set(i, currentFile);
-					}else {
-						//Succes refactor
-						currentFile.setTendency("Succes refactor 2 but without improvements");
-						cronoResults.set(i, currentFile);
-					}
-				}
-			}else if(slope > 20) {
-				if(variance >5500) {
-					if(bfrLast <= y2) {
-						//Unsucces Refactor
-						currentFile.setTendency("Unsucces refactor 3");
-						cronoResults.set(i, currentFile);
-					}else {
-						//Unsucces Refactor
-						currentFile.setTendency("Unsucces refactor 3 but improving");
-						cronoResults.set(i, currentFile);
-					}
-				}else {
-					//High degrading
-					currentFile.setTendency("High degrading");
+					//Improving
+					currentFile.setTendency("Improving");
 					cronoResults.set(i, currentFile);
 				}
-			}else if(slope > 0) {
-				//Degrading
-				currentFile.setTendency("Degrading");
-				cronoResults.set(i, currentFile);
-			}else if(slope < 20){
-				if(variance > 5500) {
-					if(bfrLast < y2) {
-						//Succes refactor
-						currentFile.setTendency("Succes refactor 3 but degrading");
-						cronoResults.set(i, currentFile);
-					}else if(bfrLast > y2) {
-						//Succes refactor
-						currentFile.setTendency("Succes refactor 3 and improving");
-						cronoResults.set(i, currentFile);
-					}else {
-						//Succes refactor
-						currentFile.setTendency("Succes refactor 3 but without improvements");
-						cronoResults.set(i, currentFile);
-					}
-				}else {
-					//High Improving
-					currentFile.setTendency("High improving");
-					cronoResults.set(i, currentFile);
-				}
-			}else {
-				//Improving
-				currentFile.setTendency("Improving");
-				cronoResults.set(i, currentFile);
 			}
 		}
+			
 		return cronoResults;
 	}
 	
@@ -362,7 +366,13 @@ public class ReportService {
 	 */
 	public AnalysisResult saveArchinautReport(JSONObject archResult) throws Exception{
 		
-		return parseArchinautObject(archResult);
+		AnalysisResult newAnalysisResult = parseArchinautObject(archResult);
+		
+		if(configSevice.create(newAnalysisResult.getIdProject(), newAnalysisResult.getMetricsMap()) != null) {
+			return mongoRepository.save(newAnalysisResult);
+		}else {
+			return null;
+		}
 	}
 	
 	/*

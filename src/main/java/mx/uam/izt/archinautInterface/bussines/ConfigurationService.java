@@ -1,5 +1,7 @@
 package mx.uam.izt.archinautInterface.bussines;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,9 +22,51 @@ public class ConfigurationService {
 	 * 
 	 * @return saves and metric configurations
 	 */
-	public ConfigurationsList create(ConfigurationsList configsList){
+	public ConfigurationsList create(String idProject, HashMap<Integer, String> metricsMap){
 		
-		return configRepository.save(configsList);
+		ConfigurationsList newConfigsList = new ConfigurationsList();
+		
+		List<MetricConfiguration> newMetricsConfigurations = new ArrayList<>();
+		
+		if(configRepository.existsById(idProject)) {
+			newConfigsList = configRepository.findById(idProject).get();
+			newMetricsConfigurations = newConfigsList.getMetricsConfigurations();
+			
+			int i;
+			
+			for(String metric : metricsMap.values()) {
+				for(i=0; i<newMetricsConfigurations.size(); i++) {
+					if(newMetricsConfigurations.get(i).getMetricName() == metric) {
+						break;
+					}
+				}
+				if(i==newMetricsConfigurations.size()) {//It means that does not contain the metric
+					MetricConfiguration newMetricConfiguration = new MetricConfiguration();
+					newMetricConfiguration.setMetricName(metric);
+					newMetricConfiguration.setThreshold(0.0);
+					
+					newMetricsConfigurations.add(newMetricConfiguration);
+				}
+			}
+			newConfigsList.setMetricsConfigurations(newMetricsConfigurations);
+			
+			return configRepository.save(newConfigsList);
+			
+		}else {//It is a new config list
+			for(String metric : metricsMap.values()) {
+				MetricConfiguration newMetricConfiguration = new MetricConfiguration();
+				newMetricConfiguration.setMetricName(metric);
+				newMetricConfiguration.setThreshold(0.0);
+				
+				newMetricsConfigurations.add(newMetricConfiguration);
+			}
+			
+			newConfigsList.setProjectName(idProject);
+			newConfigsList.setMetricsConfigurations(newMetricsConfigurations);
+			
+			return configRepository.save(newConfigsList);
+		}
+		
 	}
 	
 	/**

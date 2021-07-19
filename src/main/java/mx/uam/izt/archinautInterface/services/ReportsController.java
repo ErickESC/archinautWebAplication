@@ -35,15 +35,18 @@ public class ReportsController {
 			value = "Regresa todos los datos ya procesados de acuerdo a la herramienta seleccionada",
 			notes = "Regresa un json con una lista de los datos procesados"
 			)
-	@GetMapping(path = "/tool/{toolName}/report/{idPoject}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity <?> retrieveAll(@PathVariable("idPoject") String idPoject, @PathVariable("toolName") String toolName) {
+	@GetMapping(path = "/tool/{toolName}/report/results", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity <?> retrieveAll(@PathVariable("toolName") String toolName) {
 		
 		List <FileCronoResults> result = reportService.retriveToolAnalysis(toolName);
 		
 		log.info("datos procesados");
 		
-		return ResponseEntity.status(HttpStatus.OK).body(result);
-		
+		if(result != null) {
+			return ResponseEntity.status(HttpStatus.OK).body(result);
+		}else {
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Error getting analysis");
+		}	
 	}
 	
 	/**
@@ -54,15 +57,18 @@ public class ReportsController {
 			value = "Regresa una lista de las herramientas utilizadas en el proyecto",
 			notes = "Regresa un json con una lista de herramientas"
 			)
-	@GetMapping(path = "tool/list", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity <?> retrieveEvo() {
+	@GetMapping(path = "tool/list/report/{idPoject}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity <?> retrieveEvo(@PathVariable("idPoject") String idPoject) {
 		
 		log.info("lista de herramientas");
 		
-		List <String> result = reportService.retriveToolList();
+		List <String> result = reportService.retriveToolList(idPoject);
 		
-		return ResponseEntity.status(HttpStatus.OK).body(result);
-		
+		if(result != null) {
+			return ResponseEntity.status(HttpStatus.OK).body(result);
+		}else {
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Error getting metrics list");
+		}
 	}
 	
 	/**
@@ -79,7 +85,11 @@ public class ReportsController {
 		
 		AnalysisResult newAnalysisResult = reportService.saveArchinautReport(archResult);
 		
-		return ResponseEntity.status(HttpStatus.OK).body(newAnalysisResult);
+		if(newAnalysisResult != null) {
+			return ResponseEntity.status(HttpStatus.CREATED).body(newAnalysisResult);
+		}else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error saving archinaut report");
+		}
 		
 	}
 }

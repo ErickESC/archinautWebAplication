@@ -34,209 +34,266 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
       	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
       	    
-      <script>
+		<script>
    
-  	 var URL = "http://localhost:8080/tool";
+  	 		var URL = "http://localhost:8080/tool";
 	  
-	 var crono = [];//Se crea un arreglo que se usara como matriz tridimensional
+	 		var crono = [];//Array used as a tridimensional matrix
 	 
-	 var configurationsList = [];//Se crea un arreglo que se usara como matriz tridimensional
+	 		var configurationsList;//Object
 	 
-	 var higherThreshold = [];
+	 		var aboveThreshold = [];
 	 
-	 var lowerThreshold = [];
+	 		var belowThreshold = [];
 	 
-	 var metric = "";
+	 		var currentMetric = "";
 	 
-	 var currentThreshold = "";
-      
-   $(document).ready(function(){
-	   
-    	 $.ajaxSetup({contentType: "application/json; charset=utf-8"});
-	     
-    	 var metricsURL = URL+"/list";
-    	 
-    	 var configurationsURL = URL+"/configuration/project/hdmsantander-snake";
-    	 
-     	 $.get(metricsURL,processMetrics);//Getting the graphics
-     	 
-     	 $.get(configurationsURL,processConfigurations);//Getting the configurations
-    });
-   
-   function processConfigurations(list){ 
-	   configurationsList = list;
-	}
-   
-   function processMetrics(list){ 
-	 		
-	  	for(i=0; i<list.length;i++){
-			element = list[i];
+	 		var projectName = "";
+	 
+	 		var currentThreshold = "";
+   			
+	 		//For save the project nme from the input
+			function saveProjectName(){
+				this.projectName = document.getElementById("projectInput").value;
+			}
 			
-			var objOption = new Option(list[i], list[i]);
-                
-            document.getElementById("metricSelection").add( objOption );
-		}
-	 		
-	}
-   
-    function saveMetric(){
-		 this.metric = document.getElementById("metricSelection").value;
-		 search();
-	}
-   
-	function search(){ 
-    		
-		$.ajaxSetup({contentType: "application/json; charset=utf-8"});
-	    
-		var searchURL = URL+"/"+this.metric+"/report/dfsd";
-		
-    	$.get(searchURL,processReports);
-    	
-    	for(let metric of configurationsList.metricsConfigurations){//Look for the metrics's threshold
-    		if(metric.metricName == this.metric){
-    			document.getElementById("thresholdInput").value = metric.threshold;
-    			this.currentThreshold = metric.threshold;
-    			return;
-    		}
-    	}
-	 		
-	}
-	
-	function processReports(list){ 
-		
-		crono = list;console.log(crono);
-	 	
-	  	drawChart(crono);
-	 		
-	}
-   
-	function drawChart(array) {
-		
-		$("#ctnr-graficas").empty();
-		
- 	  		for(var i=0; i<array.length; i++){
- 	  			
- 	  			var labels = [];
- 	  			
- 	  			var datasetBfrThreshold = [];
- 	  			
- 	  			var datasetAfrThreshold = [];
- 	  			
- 	  			var thresholdIndex;
- 	  			
- 	  			for(var j=0; j<array[i].results.length; j++){
- 	  				//To get all the commits
- 	  				var numCommit = j+1;
- 	  				labels.push("Commit: "+numCommit);
- 	  			}
- 	  			
- 	  			for(var j=0; j<array[i].results.length; j++){
- 	  				//To find where the dataset passes the threshold
- 	  				if(array[i].results[j] >= this.currentThreshold){
- 	  					thresholdIndex = j;
- 	  					break;
- 	  				}
- 	  			}
- 	  			for(var j=0; j<array[i].results.length; j++){
- 	  				if(j <= this.thresholdIndex){//Saves on the before threshold array
- 	  					datasetBfrThreshold.push(array[i].results[j]);
- 	  					datasetAfrThreshold.push(null);
- 	  				}else{//Saves on the after threshold array
- 	  					datasetAfrThreshold.push(array[i].results[j]);
- 	  				}
- 	  			}
- 	  			
- 	  			$("#ctnr-graficas").append($("<h3 class=\"centrar-texto\">"+array[i].fileName+"</h3>"+"<canvas id="+i+" width=\"400\" height=\"100\"></canvas>"));
-
- 	  		 	var ctx= document.getElementById(i).getContext("2d");
-	  	        
- 	  		 	var myChart= new Chart(ctx,{
-	  	            type:"line",
-	  	            data:{
-	  	                labels:labels,
-	  	                datasets:[
-	  	                	{
-	  	                        label:this.metric+" before threshold",
-	  	                        data:datasetBfrThreshold,
-	  	                      	backgroundColor: 'rgb(243, 49, 49, 1)'
-	  	                	},
-	  	                	{
-	  	                        label:this.metric+" after threshold",
-	  	                        data:datasetAfrThreshold,
-	  	                      	backgroundColor: 'rgb(255, 205, 86, 1)'
-	  	                	}
-	  	                ]
-	  	            },
-	  	          	options:{
-	  	          		elements: {
-	  	              		line: {
-	  	                 		tension: 0 // disables bezier curves
-	  	              		}
-	  	         		},
-	  	          	  	title: {
-	  	              		display: true,
-	  	                	fontSize: 20,
-	  	                	fontColor: '#000',
-	  	              		text: "Analysis Result: "+array[i].tendency
-	  	          	  	},
-	                  	scales:{
-	                      yAxes:[{
-	                              ticks:{
-	                                  beginAtZero:true
-	                              }
-	                      }]
-	                  	}
-	              	  }
-	  	        	});
- 	  		}
- 	}
-	
-	function getHigher(){
-		higherThreshold = [];
-		for(var i=0; i<crono.length; i++){
-			var last = crono[i].results.length - 1;
-			if(crono[i].results[last] >= this.currentThreshold){
-				higherThreshold.push(crono[i]);
-			}
-		}
-		drawChart(higherThreshold);
-	}
-	
-	function getLower(){
-		lowerThreshold = [];
-		for(var i=0; i<crono.length; i++){
-			var last = crono[i].results.length - 1;
-			if(crono[i].results[last] <= this.currentThreshold){
-				lowerThreshold.push(crono[i]);
-			}
-		}
-		drawChart(lowerThreshold);
-	}
-	
-	function saveThresholdValue(){
-		 this.currentThreshold = document.getElementById("thresholdInput").value;
+	 		//For get the project metrics and thresholds configurations
+			function getProject(){
+	   		
+				$.ajaxSetup({contentType: "application/json; charset=utf-8"});
+	     
+				var metricsURL = this.URL+"/list/report/"+this.projectName;
 		 
-	    for(let metric of configurationsList.metricsConfigurations){//Look for the metrics's threshold
-	    	if(metric.metricName == this.metric){
-	    		 metric.threshold = this.currentThreshold;
-	    		return;
-	    	}
-	    } 
-	}
-    
-	function saveThreshold(){
-		console.log("Saving Threshold");
+				var configurationsURL = this.URL+"/configuration/project/"+this.projectName;
+		 
+	 			$.get(metricsURL,processMetrics);//Getting metrics
+	 		
+	 			$.get(configurationsURL,processConfigurations);//Getting thresholds configurations
+	 		
+			}
+	 		
+	 		//For save the thresholds conigurations in a global list
+   			function processConfigurations(configuration){ 
+	   			configurationsList = configuration;
+			}
+   
+	 		//For add the metrics to the metrics selector
+   			function processMetrics(list){ 
+	 		
+	  			for(i=0; i<list.length;i++){
+					element = list[i];
+			
+					var objOption = new Option(list[i], list[i]);
+                
+            		document.getElementById("metricSelection").add( objOption );
+				}
+			}
+   
+	 		//For save the metric selected by the user
+    		function saveMetric(){
+		 		this.currentMetric = document.getElementById("metricSelection").value;
+		 		search();
+			}
+   
+	 		//For search the analysis from that metric
+			function search(){ 
+    		
+				$("#ctnr-graficas").empty();
+	 			
+				$.ajaxSetup({contentType: "application/json; charset=utf-8"});
+	    
+				var searchURL = this.URL+"/"+this.currentMetric+"/report/results";
 		
-	}
-      </script>
+    			$.get(searchURL,processReports);
+    			
+    			for(let metric of this.configurationsList.metricsConfigurations){//Look for the metrics's threshold
+    				if(metric.metricName == this.currentMetric){
+    					document.getElementById("thresholdInput").value = metric.threshold;
+    					this.currentThreshold = metric.threshold;
+    					return;
+    				}
+    			}
+	 		
+			}
+	
+	 		//For save the report in a global variable and passes to draw its chart
+			function processReports(list){ 
+		
+				crono = list;
+	 	
+	  			drawChart(crono);
+	 		
+			}
+   
+	 		//For draw a chart
+			function drawChart(array) {
+		
+					$("#ctnr-graficas").empty();
+					
+ 	  				for(var i=0; i<array.length; i++){
+ 	  			
+ 	  					if(array[i].tendency != null){
+ 	  				
+ 	 	  					var labels = [];
+ 	 	  			
+ 	 	  					var datasetBfrThreshold = [];
+ 	 	  			
+ 	 	  					var datasetAfrThreshold = [];
+ 	 	  			
+ 	 	  					var thresholdIndex;
+ 	 	  			
+ 	 	  					for(var j=0; j<array[i].results.length; j++){
+ 	 	  						//To get all the commits
+ 	 	  						var numCommit = j+1;
+ 	 	  						labels.push("Commit: "+numCommit);
+ 	 	  					}
+ 	 	  			
+ 	 	  					//To find where is higher and lower than threshold
+ 	 	  					for(var j=0; j<array[i].results.length; j++){
+ 	 	  						if(array[i].results[j] < this.currentThreshold){
+ 	 	  							datasetBfrThreshold.push(array[i].results[j]);
+ 	 	  							datasetAfrThreshold.push(null);
+ 	 	  						}else if(array[i].results[j] > this.currentThreshold){
+ 	 	  							datasetBfrThreshold.push(null);
+ 	 	  							datasetAfrThreshold.push(array[i].results[j]);
+ 	 	  						}else if(array[i].results[j] == this.currentThreshold){
+ 	 	  							datasetBfrThreshold.push(array[i].results[j]);
+ 	 	  							datasetAfrThreshold.push(array[i].results[j]);
+ 	 	  						}
+ 	 	  					}
+ 	 	  			
+ 	 	  					//For show it in two colors
+ 	 	  					if(datasetBfrThreshold.length > 0 || datasetAfrThreshold.length > 0){
+ 	 	  						for(var j=0; j<datasetBfrThreshold.length; j++){
+ 	 	  							if(j > 1){
+ 	 	 	  							if(datasetBfrThreshold[j-1] == null && datasetBfrThreshold[j] != null){
+ 	 	 	  								datasetBfrThreshold[j-1] = datasetAfrThreshold[j-1];
+ 	 	 	  							}
+ 	 	 	  							if(datasetAfrThreshold[j-1] == null && datasetAfrThreshold[j] != null){
+ 	 	 	  								datasetAfrThreshold[j-1] = datasetBfrThreshold[j-1];
+ 		 	  							}
+ 	 	 	  						}
+ 	 	  						}
+ 	 	  					}
+
+ 	 	  					//For create the DOM where the chart it is going to be drawn
+ 	 	  					$("#ctnr-graficas").append($("<h3 class=\"centrar-texto\">"+array[i].fileName+"</h3>"+"<canvas id="+i+" width=\"400\" height=\"100\"></canvas>"));
+
+ 	 	  		 			var ctx= document.getElementById(i).getContext("2d");
+ 		  	        
+ 	 	  		 			//Char features
+ 	 	  		 			var myChart= new Chart(ctx,{
+ 		  	            		type:"line",
+ 		  	            		data:{
+ 		  	                		labels:labels,
+ 		  	                		datasets:[
+ 		  	                			{
+ 		  	                        		label:this.currentMetric+" below threshold",
+ 		  	                        		data:datasetBfrThreshold,
+ 		  	                      			backgroundColor: 'rgb(31, 210, 23, 1)'
+ 		  	                			},
+ 		  	                			{
+ 		  	                        		label:this.currentMetric+" above threshold",
+ 		  	                        		data:datasetAfrThreshold,
+ 		  	                      			backgroundColor: 'rgb(243, 49, 49, 1)'
+ 		  	                			}
+ 		  	                		]
+ 		  	            		},
+ 		  	          			options:{
+ 		  	          				elements: {
+ 		  	              				line: {
+ 		  	                 				tension: 0 // disables bezier curves
+ 		  	              				}
+ 		  	         				},
+ 		  	          	  			title: {
+ 		  	              				display: true,
+ 		  	                			fontSize: 20,
+ 		  	                			fontColor: '#000',
+ 		  	              				text: "Analysis Result: "+array[i].tendency
+ 		  	          	  			},
+ 		                  			scales:{
+ 		                      			yAxes:[{
+ 		                              		ticks:{
+ 		                                  		beginAtZero:true
+ 		                             		}
+ 		                      			}]
+ 		                  			}
+ 		              	  		}
+ 		  	        		});
+ 	  				
+ 	  					}
+ 	  				}
+ 			}
+	
+	 		//For get analysis that the last value is above the metric threshold
+			function getHigher(){
+				this.aboveThreshold = [];
+				for(var i=0; i<this.crono.length; i++){
+					var last = this.crono[i].results.length - 1;
+					if(this.crono[i].results[last] >= this.currentThreshold){
+						this.aboveThreshold.push(crono[i]);
+					}
+				}
+				drawChart(this.aboveThreshold);
+			}
+	
+	 		//For get analysis that the last value is below the metric threshold
+			function getLower(){
+				this.belowThreshold = [];
+				for(var i=0; i<this.crono.length; i++){
+					var last = this.crono[i].results.length - 1;
+					if(this.crono[i].results[last] <= this.currentThreshold){
+						this.belowThreshold.push(crono[i]);
+					}
+				}
+				drawChart(this.lowerThreshold);
+			}
+	
+	 		//For save the new trheshold on the local configurations list
+			function saveThresholdValue(){
+		 		this.currentThreshold = document.getElementById("thresholdInput").value;
+		 
+	    		for(let metric of this.configurationsList.metricsConfigurations){//Look for the metrics's threshold
+	    			if(metric.metricName == this.currentMetric){
+	    		 		metric.threshold = this.currentThreshold;
+	    				return;
+	    			}
+	    		} 
+			}
+	 		
+	 		//For save the new thresholds configurations on DB
+			function saveThreshold(){
+		
+				$.ajaxSetup({contentType: "application/json; charset=utf-8"});
+		
+				var saveURL = this.URL+"/configuration/update/project/"+this.projectName;
+		
+				var listJSON = JSON.stringify({ 
+												projectName: this. projectName, 
+												metricsConfigurations: this.configurationsList.metricsConfigurations,
+			  						 		});
+			
+				$.ajax({url: saveURL, 
+		    			method: 'PUT',
+		    			data: listJSON,
+		    			success: alert("Saved succesfully")
+		    		  });
+		
+			}
+	 		
+	 		//For save a new report on the DB
+	 		function uploadReport(){
+	 			
+	 		}
+			
+		</script>
       
       <div class="sticky-top site-header">
           <div class="collapse" id="navbarToggleExternalContent">
             <div class="bg-dark pt-4 px-4 pb-1">
               <p>Options</p>
               <ul class="menu-header">
-                <li><img src="img/iconos/pinUam16.png" alt=""> <a href="/">Inicio</a></li>
-                <li><img src="img/iconos/pinUam16.png" alt=""> <a href="graficas">Graficas</a></li>
+                <li><img src="img/iconos/pinUam16.png" alt=""> <a href="/">Home</a></li>
               </ul>
             </div>
           </div>
@@ -250,6 +307,21 @@
           </nav>
         </div>
 		<main class="container seccion contenido-centrado">
+			<h2 class="centrar-texto">Write the name from the project you want to see the analysis</h2>
+
+            <form class="registro" action="">
+                <fieldset>
+                    <legend class="centrar-texto">Project Selection</legend>
+                    
+					<label for="projectInput">Project:</label>
+                    <input id="projectInput" onkeyup="saveProjectName()"></input>
+					
+					<a style="color: #ffffff;" id="getReportButton" class="boton boton-verde" href='javascript:;' onclick="getProject();">Get Report</a>
+					<a style="color: #ffffff;" id="uploadReportButton" class="boton boton-rojo" href='javascript:;' onclick="uploadReport();">Upload a new report</a>
+
+                </fieldset>
+
+            </form>
             <h2 class="centrar-texto">Select the metric for which you want to see the results</h2>
 
             <form class="registro" action="">
@@ -265,9 +337,9 @@
 					<label for="thresholdInput">Metric Threshold:</label>
                     <input id="thresholdInput" type="number" onkeyup="saveThresholdValue()"></input>
 					
-					<a style="color: #ffffff;" id="botonDraw" class="boton boton-verde" href='javascript:;' onclick="drawChart(crono);">Draw it</a>
-					<a style="color: #ffffff;" id="botonHigher" class="boton boton-verde" href='javascript:;' onclick="getHigher();">Higher than Threshold</a>
-					<a style="color: #ffffff;" id="botonLower" class="boton boton-verde" href='javascript:;' onclick="getLower();">Lower than Threshold</a>
+					<a style="color: #ffffff;" id="botonDraw" class="boton boton-verde" href='javascript:;' onclick="drawChart(crono);">Show Charts Without Filter</a>
+					<a style="color: #ffffff;" id="botonHigher" class="boton boton-verde" href='javascript:;' onclick="getHigher();">Filter Above Threshold</a>
+					<a style="color: #ffffff;" id="botonLower" class="boton boton-verde" href='javascript:;' onclick="getLower();">Filter Below Threshold</a>
 					<a style="color: #ffffff;" id="botonSaveThreshold" class="boton boton-rojo" href='javascript:;' onclick="saveThreshold();">Save All Thresholds</a>
                 </fieldset>
 
@@ -281,10 +353,9 @@
         <footer class="site-footer seccion">
           <div class="container contenedor-footer">
           	<nav class="navegacion-footer">
-                  <a href="/">Inicio</a>
-                  <a href="graficas">Ver Graficas</a>
+                  <a href="/">Home</a>
             </nav>
-            <p class="copyright">Todos los Derechos Reservados UAM-I 2020 &copy;</p>
+            <p class="copyright">All rights reserved to UAM-I 2021 &copy;</p>
           </div>
         </footer>
     </body>
