@@ -1,0 +1,362 @@
+<!doctype html>
+    <html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+        <!--Hojas de estilo personalizadas-->
+        <link rel="stylesheet" type="text/css" href="static/css/normalize.css" th:href="@{/css/normalize.css}" >
+        <link rel="stylesheet" type="text/css" href="static/css/style.css" th:href="@{/css/style.css}">
+
+        <!--Fuentes-->
+        <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Lato:wght@400;700&display=swap" rel="stylesheet"> 
+        
+        <!-- Chart js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js" integrity="sha512-hZf9Qhp3rlDJBvAKvmiG+goaaKRZA6LKUO35oK6EsM0/kjPK32Yw7URqrq3Q+Nvbbt8Usss+IekL7CRn83dYmw==" crossorigin="anonymous"></script>
+        
+        <!-- Vue js -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+        
+        <!--Titulo de la página-->
+        <link rel="shortcut icon" href="img/iconos/pinUam24.png"> 
+        <title>Archinaut</title>
+    </head>
+    <body>
+
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+      	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+      	    
+		<script>
+   
+  	 		var URL = "http://localhost:8080/tool";
+	  
+	 		var crono = [];//Array used as a tridimensional matrix
+	 
+	 		var configurationsList;//Object
+	 
+	 		var aboveThreshold = [];
+	 
+	 		var belowThreshold = [];
+	 
+	 		var currentMetric = "";
+	 
+	 		var projectName = "";
+	 
+	 		var currentThreshold = "";
+   			
+	 		//For save the project nme from the input
+			function saveProjectName(){
+				this.projectName = document.getElementById("projectInput").value;
+			}
+			
+	 		//For get the project metrics and thresholds configurations
+			function getProject(){
+	   		
+				$.ajaxSetup({contentType: "application/json; charset=utf-8"});
+	     
+				var metricsURL = this.URL+"/list/report/"+this.projectName;
+		 
+				var configurationsURL = this.URL+"/configuration/project/"+this.projectName;
+		 
+	 			$.get(metricsURL,processMetrics);//Getting metrics
+	 		
+	 			$.get(configurationsURL,processConfigurations);//Getting thresholds configurations
+	 		
+			}
+	 		
+	 		//For save the thresholds conigurations in a global list
+   			function processConfigurations(configuration){ 
+	   			configurationsList = configuration;
+			}
+   
+	 		//For add the metrics to the metrics selector
+   			function processMetrics(list){ 
+	 		
+	  			for(i=0; i<list.length;i++){
+					element = list[i];
+			
+					var objOption = new Option(list[i], list[i]);
+                
+            		document.getElementById("metricSelection").add( objOption );
+				}
+			}
+   
+	 		//For save the metric selected by the user
+    		function saveMetric(){
+		 		this.currentMetric = document.getElementById("metricSelection").value;
+		 		search();
+			}
+   
+	 		//For search the analysis from that metric
+			function search(){ 
+    		
+				$("#ctnr-graficas").empty();
+	 			
+				$.ajaxSetup({contentType: "application/json; charset=utf-8"});
+	    
+				var searchURL = this.URL+"/"+this.currentMetric+"/report/results";
+		
+    			$.get(searchURL,processReports);
+    			
+    			for(let metric of this.configurationsList.metricsConfigurations){//Look for the metrics's threshold
+    				if(metric.metricName == this.currentMetric){
+    					document.getElementById("thresholdInput").value = metric.threshold;
+    					this.currentThreshold = metric.threshold;
+    					return;
+    				}
+    			}
+	 		
+			}
+	
+	 		//For save the report in a global variable and passes to draw its chart
+			function processReports(list){ 
+		
+				crono = list;
+	 	
+	  			drawChart(crono);
+	 		
+			}
+   
+	 		//For draw a chart
+			function drawChart(array) {
+		
+					$("#ctnr-graficas").empty();
+					
+ 	  				for(var i=0; i<array.length; i++){
+ 	  			
+ 	  					if(array[i].tendency != null){
+ 	  				
+ 	 	  					var labels = [];
+ 	 	  			
+ 	 	  					var datasetBfrThreshold = [];
+ 	 	  			
+ 	 	  					var datasetAfrThreshold = [];
+ 	 	  			
+ 	 	  					var thresholdIndex;
+ 	 	  			
+ 	 	  					for(var j=0; j<array[i].results.length; j++){
+ 	 	  						//To get all the commits
+ 	 	  						var numCommit = j+1;
+ 	 	  						labels.push("Commit: "+numCommit);
+ 	 	  					}
+ 	 	  			
+ 	 	  					//To find where is higher and lower than threshold
+ 	 	  					for(var j=0; j<array[i].results.length; j++){
+ 	 	  						if(array[i].results[j] < this.currentThreshold){
+ 	 	  							datasetBfrThreshold.push(array[i].results[j]);
+ 	 	  							datasetAfrThreshold.push(null);
+ 	 	  						}else if(array[i].results[j] > this.currentThreshold){
+ 	 	  							datasetBfrThreshold.push(null);
+ 	 	  							datasetAfrThreshold.push(array[i].results[j]);
+ 	 	  						}else if(array[i].results[j] == this.currentThreshold){
+ 	 	  							datasetBfrThreshold.push(array[i].results[j]);
+ 	 	  							datasetAfrThreshold.push(array[i].results[j]);
+ 	 	  						}
+ 	 	  					}
+ 	 	  			
+ 	 	  					//For show it in two colors
+ 	 	  					if(datasetBfrThreshold.length > 0 || datasetAfrThreshold.length > 0){
+ 	 	  						for(var j=0; j<datasetBfrThreshold.length; j++){
+ 	 	  							if(j > 1){
+ 	 	 	  							if(datasetBfrThreshold[j-1] == null && datasetBfrThreshold[j] != null){
+ 	 	 	  								datasetBfrThreshold[j-1] = datasetAfrThreshold[j-1];
+ 	 	 	  							}
+ 	 	 	  							if(datasetAfrThreshold[j-1] == null && datasetAfrThreshold[j] != null){
+ 	 	 	  								datasetAfrThreshold[j-1] = datasetBfrThreshold[j-1];
+ 		 	  							}
+ 	 	 	  						}
+ 	 	  						}
+ 	 	  					}
+
+ 	 	  					//For create the DOM where the chart it is going to be drawn
+ 	 	  					$("#ctnr-graficas").append($("<h3 class=\"centrar-texto\">"+array[i].fileName+"</h3>"+"<canvas id="+i+" width=\"400\" height=\"100\"></canvas>"));
+
+ 	 	  		 			var ctx= document.getElementById(i).getContext("2d");
+ 		  	        
+ 	 	  		 			//Char features
+ 	 	  		 			var myChart= new Chart(ctx,{
+ 		  	            		type:"line",
+ 		  	            		data:{
+ 		  	                		labels:labels,
+ 		  	                		datasets:[
+ 		  	                			{
+ 		  	                        		label:this.currentMetric+" below threshold",
+ 		  	                        		data:datasetBfrThreshold,
+ 		  	                      			backgroundColor: 'rgb(31, 210, 23, 1)'
+ 		  	                			},
+ 		  	                			{
+ 		  	                        		label:this.currentMetric+" above threshold",
+ 		  	                        		data:datasetAfrThreshold,
+ 		  	                      			backgroundColor: 'rgb(243, 49, 49, 1)'
+ 		  	                			}
+ 		  	                		]
+ 		  	            		},
+ 		  	          			options:{
+ 		  	          				elements: {
+ 		  	              				line: {
+ 		  	                 				tension: 0 // disables bezier curves
+ 		  	              				}
+ 		  	         				},
+ 		  	          	  			title: {
+ 		  	              				display: true,
+ 		  	                			fontSize: 20,
+ 		  	                			fontColor: '#000',
+ 		  	              				text: "Analysis Result: "+array[i].tendency
+ 		  	          	  			},
+ 		                  			scales:{
+ 		                      			yAxes:[{
+ 		                              		ticks:{
+ 		                                  		beginAtZero:true
+ 		                             		}
+ 		                      			}]
+ 		                  			}
+ 		              	  		}
+ 		  	        		});
+ 	  				
+ 	  					}
+ 	  				}
+ 			}
+	
+	 		//For get analysis that the last value is above the metric threshold
+			function getHigher(){
+				this.aboveThreshold = [];
+				for(var i=0; i<this.crono.length; i++){
+					var last = this.crono[i].results.length - 1;
+					if(this.crono[i].results[last] >= this.currentThreshold){
+						this.aboveThreshold.push(crono[i]);
+					}
+				}
+				drawChart(this.aboveThreshold);
+			}
+	
+	 		//For get analysis that the last value is below the metric threshold
+			function getLower(){
+				this.belowThreshold = [];
+				for(var i=0; i<this.crono.length; i++){
+					var last = this.crono[i].results.length - 1;
+					if(this.crono[i].results[last] <= this.currentThreshold){
+						this.belowThreshold.push(crono[i]);
+					}
+				}
+				drawChart(this.lowerThreshold);
+			}
+	
+	 		//For save the new trheshold on the local configurations list
+			function saveThresholdValue(){
+		 		this.currentThreshold = document.getElementById("thresholdInput").value;
+		 
+	    		for(let metric of this.configurationsList.metricsConfigurations){//Look for the metrics's threshold
+	    			if(metric.metricName == this.currentMetric){
+	    		 		metric.threshold = this.currentThreshold;
+	    				return;
+	    			}
+	    		} 
+			}
+	 		
+	 		//For save the new thresholds configurations on DB
+			function saveThreshold(){
+		
+				$.ajaxSetup({contentType: "application/json; charset=utf-8"});
+		
+				var saveURL = this.URL+"/configuration/update/project/"+this.projectName;
+		
+				var listJSON = JSON.stringify({ 
+												projectName: this. projectName, 
+												metricsConfigurations: this.configurationsList.metricsConfigurations,
+			  						 		});
+			
+				$.ajax({url: saveURL, 
+		    			method: 'PUT',
+		    			data: listJSON,
+		    			success: alert("Saved succesfully")
+		    		  });
+		
+			}
+	 		
+	 		//For save a new report on the DB
+	 		function uploadReport(){
+	 			
+	 		}
+			
+		</script>
+      
+      <div class="sticky-top site-header">
+          <div class="collapse" id="navbarToggleExternalContent">
+            <div class="bg-dark pt-4 px-4 pb-1">
+              <p>Options</p>
+              <ul class="menu-header">
+                <li><img src="img/iconos/pinUam16.png" alt=""> <a href="/">Home</a></li>
+              </ul>
+            </div>
+          </div>
+          <nav class="navbar navbar-dark bg-dark">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <h2 class="titulo-principal">Analysis Results</h2>
+            <img src="img/iconos/pinUam48.png" alt="">
+            
+          </nav>
+        </div>
+		<main class="container seccion contenido-centrado">
+			<h2 class="centrar-texto">Write the name from the project you want to see the analysis</h2>
+
+            <form class="registro" action="">
+                <fieldset>
+                    <legend class="centrar-texto">Project Selection</legend>
+                    
+					<label for="projectInput">Project:</label>
+                    <input id="projectInput" onkeyup="saveProjectName()"></input>
+					
+					<a style="color: #ffffff;" id="getReportButton" class="boton boton-verde" href='javascript:;' onclick="getProject();">Get Report</a>
+					<a style="color: #ffffff;" id="uploadReportButton" class="boton boton-rojo" href='javascript:;' onclick="uploadReport();">Upload a new report</a>
+
+                </fieldset>
+
+            </form>
+            <h2 class="centrar-texto">Select the metric for which you want to see the results</h2>
+
+            <form class="registro" action="">
+                <fieldset>
+                    <legend class="centrar-texto">Metric Selection</legend>
+                    
+                    <label for="metricSelection">Metric:</label>
+                    <select id="metricSelection" onchange="saveMetric()" required>
+                    	<option value="" disabled selected>--Select Metric--</option>
+                       	<!-- Options se insertan con JS -->
+                    </select>
+                    
+					<label for="thresholdInput">Metric Threshold:</label>
+                    <input id="thresholdInput" type="number" onkeyup="saveThresholdValue()"></input>
+					
+					<a style="color: #ffffff;" id="botonDraw" class="boton boton-verde" href='javascript:;' onclick="drawChart(crono);">Show Charts Without Filter</a>
+					<a style="color: #ffffff;" id="botonHigher" class="boton boton-verde" href='javascript:;' onclick="getHigher();">Filter Above Threshold</a>
+					<a style="color: #ffffff;" id="botonLower" class="boton boton-verde" href='javascript:;' onclick="getLower();">Filter Below Threshold</a>
+					<a style="color: #ffffff;" id="botonSaveThreshold" class="boton boton-rojo" href='javascript:;' onclick="saveThreshold();">Save All Thresholds</a>
+                </fieldset>
+
+            </form>
+        </main>
+        <h2 class="centrar-texto">Results</h2>
+        <div class="contenedor-graficas" id="ctnr-graficas">
+            <!-- GRAFICAS -->
+        </div>
+
+        <footer class="site-footer seccion">
+          <div class="container contenedor-footer">
+          	<nav class="navegacion-footer">
+                  <a href="/">Home</a>
+            </nav>
+            <p class="copyright">All rights reserved to UAM-I 2021 &copy;</p>
+          </div>
+        </footer>
+    </body>
+</html>

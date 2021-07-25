@@ -17,16 +17,10 @@ public class MainController {
 		return "index";
 	}
 	
-	@GetMapping("/graficasSCC")
-	public String graficasSCC() {
+	@GetMapping("/graficas")
+	public String graficas() {
 		
-		return "graficasSCC";
-	}
-	
-	@GetMapping("/graficasDpnds")
-	public String graficasDpnds() {
-		
-		return "graficasDpnds";
+		return "graficas";
 	}
 
 }
