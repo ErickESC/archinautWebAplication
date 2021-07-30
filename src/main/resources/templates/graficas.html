@@ -61,7 +61,7 @@
 			function getProject(){
 	   		
 				$.ajaxSetup({contentType: "application/json; charset=utf-8"});
-	     
+				
 				var metricsURL = this.URL+"/list/report/"+this.projectName;
 		 
 				var configurationsURL = this.URL+"/configuration/project/"+this.projectName;
@@ -73,13 +73,19 @@
 			}
 	 		
 	 		//For save the thresholds conigurations in a global list
-   			function processConfigurations(configuration){ 
+   			function processConfigurations(configuration){
+   				configurationsList = [];//Empty the configuration list
+   				
 	   			configurationsList = configuration;
 			}
    
 	 		//For add the metrics to the metrics selector
    			function processMetrics(list){ 
-	 		
+	 			
+   				while (document.getElementById("metricSelection").options.length > 0) {
+   					document.getElementById("metricSelection").remove(0);
+   			    }
+	 			
 	  			for(i=0; i<list.length;i++){
 					element = list[i];
 			
@@ -317,7 +323,7 @@
                     <input id="projectInput" onkeyup="saveProjectName()"></input>
 					
 					<a style="color: #ffffff;" id="getReportButton" class="boton boton-verde" href='javascript:;' onclick="getProject();">Get Report</a>
-					<a style="color: #ffffff;" id="uploadReportButton" class="boton boton-rojo" href='javascript:;' onclick="uploadReport();">Upload a new report</a>
+					<a style="color: #ffffff;" id="uploadReportButton" class="boton boton-rojo" href='http://localhost:8080/swagger-ui.html#/' target="_blank">Upload a new report</a>
 
                 </fieldset>
 

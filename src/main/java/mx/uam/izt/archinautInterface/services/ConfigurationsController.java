@@ -26,8 +26,8 @@ public class ConfigurationsController {
 	 * @return status OK and the metrics configurations
 	 */
 	@ApiOperation(
-			value = "Regresa todos las configuraciones por metrica",
-			notes = "Regresa un json con una lista de los datos procesados"
+			value = "Retrieves the file threshold configuration per metric",
+			notes = "Retrieves a Json with the list of thresholds and files"
 			)
 	@GetMapping(path = "/tool/configuration/project/{idProject}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity <?> retrieveAll(@PathVariable("idProject") String idProject) {
